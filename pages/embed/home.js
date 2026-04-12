@@ -10,8 +10,8 @@ function normalizeUrl(url) {
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
-  // Fix old format: /obituaries/slug → /obituaries-slug (match anywhere in URL)
-  url = url.replace(/\/obituaries\/([^/?#]+)/, '/obituaries-$1');
+  // Fix old format: /obituaries/slug or /obituaries-/slug → /obituaries-slug
+  url = url.replace(/\/obituaries[-/]+([^/?#]+)/, '/obituaries-$1');
   return url;
 }
 

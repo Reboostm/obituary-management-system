@@ -75,7 +75,7 @@ function render(){
         var dates=[o.birthDate,o.deathDate].filter(Boolean).join(' \u2013 ');
         var rawUrl=o.url||'#';
         var href=rawUrl;
-        if(rawUrl!=='#'){if(!rawUrl.startsWith('http://'))href='https://'+rawUrl;href=href.replace(/\/obituaries\/([^/?#]+)/,'/obituaries-$1');}
+        if(rawUrl!=='#'){if(!rawUrl.startsWith('http://'))href='https://'+rawUrl;href=href.replace(/\/obituaries[-/]+([^/?#]+)/,'/obituaries-$1');}
         return '<div class="rb-hw-card" onclick="window.top.location.href=\''+rbEsc(href)+'\';return false;" style="cursor:pointer">'+img+'<div class="rb-hw-content"><div><div class="rb-hw-name">'+rbEsc(o.fullName)+'</div><div class="rb-hw-dates">'+rbEsc(dates)+'</div></div><button class="rb-hw-btn">Read Obituary</button></div></div>';
       }).join('');
     })
