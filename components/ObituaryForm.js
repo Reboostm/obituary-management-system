@@ -32,7 +32,7 @@ const slugifyName = (fullName) => {
     .replace(/^-+|-+$/g, ''); // trim hyphens
 };
 
-const BASE_URL = 'www.didericksenmemorialfuneralservices.com/obituaries';
+const BASE_URL = 'https://www.didericksenmemorialfuneralservices.com/obituaries';
 
 export default function ObituaryForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(
