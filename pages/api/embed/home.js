@@ -54,17 +54,16 @@ export default async function handler(req, res) {
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,serif;background:transparent}
 .rb-hw{padding:24px 0}
-.rb-hw-title{display:none}
 .rb-hw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}
-.rb-hw-card{background:#0a0a0a;border:1px solid #d97706;border-radius:12px;overflow:hidden;transition:all .3s ease;text-decoration:none;color:inherit;display:flex;flex-direction:column;cursor:pointer}
-.rb-hw-card:hover{border-color:#f59e0b;box-shadow:0 4px 20px rgba(217,119,6,0.3);transform:translateY(-2px)}
-.rb-hw-img{width:100%;height:240px;object-fit:cover;display:block;background:#111}
-.rb-hw-placeholder{width:100%;height:240px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#d97706}
-.rb-hw-content{padding:16px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
-.rb-hw-name{color:#d4af37;font-size:1.25rem;font-weight:600;margin-bottom:8px;line-height:1.3}
-.rb-hw-dates{color:#d1d5db;font-size:.85rem;margin-bottom:12px}
-.rb-hw-btn{background:transparent;color:#d4af37;border:1px solid #d4af37;border-radius:6px;padding:8px 16px;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:auto;transition:all .2s;font-family:inherit;width:100%}
-.rb-hw-btn:hover{background:#d4af37;color:#000}
+.rb-hw-card{background:#0a0a0a;border:1px solid #d4af7f;border-radius:12px;overflow:hidden;transition:all .3s ease;text-decoration:none;color:inherit;display:flex;flex-direction:column;cursor:pointer}
+.rb-hw-card:hover{border-color:#e8c99a;box-shadow:0 4px 20px rgba(212,175,127,0.35);transform:translateY(-2px)}
+.rb-hw-img{width:100%;height:240px;object-fit:cover;object-position:center top;display:block;background:#111;flex-shrink:0}
+.rb-hw-placeholder{width:100%;height:240px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#d4af7f;flex-shrink:0}
+.rb-hw-content{padding:16px;flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+.rb-hw-name{color:#d4af7f;font-size:1.4rem;font-weight:600;margin-bottom:8px;line-height:1.3}
+.rb-hw-dates{color:#d1d5db;font-size:1rem;margin-bottom:14px}
+.rb-hw-btn{background:transparent;color:#d4af7f;border:1px solid #d4af7f;border-radius:6px;padding:10px 16px;font-size:1.1rem;font-weight:600;cursor:pointer;margin-top:auto;transition:all .2s;font-family:inherit;width:100%;letter-spacing:.03em}
+.rb-hw-btn:hover{background:#d4af7f;color:#000}
 .rb-hw-empty{color:#6b7280;font-size:.9rem;text-align:center;padding:32px}
 </style>
 </head>
@@ -92,6 +91,11 @@ function esc(s) {
 
 function normalizeUrl(url) {
   if (!url || url === '#') return '#';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return 'https://' + url;
+  // Add protocol if missing
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  // Fix old format: /obituaries/slug → /obituaries-slug
+  url = url.replace(/\/obituaries\/([^/]+)$/, '/obituaries-$1');
+  return url;
 }
