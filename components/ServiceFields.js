@@ -4,9 +4,10 @@ const SERVICE_TYPES = [
   'Visitation',
   'Graveside Service',
   'Memorial Service',
+  'Virtual Viewing',
 ];
 
-const EMPTY_SERVICE = { date: '', time: '', type: 'Funeral Service', location: '' };
+const EMPTY_SERVICE = { date: '', time: '', type: 'Funeral Service', location: '', virtualLink: '' };
 
 export default function ServiceFields({ services = [], onChange }) {
   const safeServices = services.length > 0 ? services : [{ ...EMPTY_SERVICE }];
@@ -84,17 +85,30 @@ export default function ServiceFields({ services = [], onChange }) {
               />
             </div>
 
-            {/* Location */}
-            <div>
-              <label className="block text-xs text-gray-400 mb-1">Location</label>
-              <input
-                type="text"
-                value={svc.location}
-                onChange={(e) => update(idx, 'location', e.target.value)}
-                placeholder="e.g. Grace Memorial Chapel"
-                className={inputClass}
-              />
-            </div>
+            {/* Location or Virtual Link */}
+            {svc.type === 'Virtual Viewing' ? (
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Virtual Service Link</label>
+                <input
+                  type="text"
+                  value={svc.virtualLink}
+                  onChange={(e) => update(idx, 'virtualLink', e.target.value)}
+                  placeholder="e.g. https://zoom.us/j/..."
+                  className={inputClass}
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Location</label>
+                <input
+                  type="text"
+                  value={svc.location}
+                  onChange={(e) => update(idx, 'location', e.target.value)}
+                  placeholder="e.g. Grace Memorial Chapel"
+                  className={inputClass}
+                />
+              </div>
+            )}
           </div>
         </div>
       ))}

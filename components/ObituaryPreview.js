@@ -185,27 +185,36 @@ export default function ObituaryPreview({ obituary, onEdit, onBack }) {
           )}
 
           {/* Services */}
-          {services && services.filter((s) => s.date || s.location).length > 0 && (
+          {services && services.filter((s) => s.date || s.location || s.virtualLink).length > 0 && (
             <section>
               <SectionHeader title="Memorial Services" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {services.filter((s) => s.date || s.location).map((svc, i) => (
-                  <div key={i} className="bg-amber-50 border border-amber-200 rounded-lg px-5 py-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <svg className="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-xs font-medium text-amber-900 uppercase tracking-widest">{svc.type}</span>
+                {services.filter((s) => s.date || s.location || s.virtualLink).map((svc, i) => {
+                  const isVirtualViewing = svc.type === 'Virtual Viewing';
+                  return (
+                    <div key={i} className={`border rounded-lg px-5 py-4 ${isVirtualViewing ? 'bg-amber-100 border-amber-400' : 'bg-amber-50 border-amber-200'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{color: isVirtualViewing ? '#b45309' : '#b45309'}}>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className={`text-xs font-medium uppercase tracking-widest ${isVirtualViewing ? 'text-amber-900' : 'text-amber-900'}`}>{svc.type}</span>
+                      </div>
+                      {(svc.date || svc.time) && (
+                        <p className="text-gray-800 text-sm font-serif">
+                          {svc.date}{svc.date && svc.time ? ' at ' : ''}{svc.time}
+                        </p>
+                      )}
+                      {isVirtualViewing && svc.virtualLink ? (
+                        <a href={svc.virtualLink} target="_blank" rel="noopener noreferrer" className="inline-block bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-3 py-1.5 rounded mt-2 transition">
+                          Join Virtual Service →
+                        </a>
+                      ) : (
+                        svc.location && <p className="text-gray-600 text-sm italic mt-0.5">{svc.location}</p>
+                      )}
                     </div>
-                    {(svc.date || svc.time) && (
-                      <p className="text-gray-800 text-sm font-serif">
-                        {svc.date}{svc.date && svc.time ? ' at ' : ''}{svc.time}
-                      </p>
-                    )}
-                    {svc.location && <p className="text-gray-600 text-sm italic mt-0.5">{svc.location}</p>}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}

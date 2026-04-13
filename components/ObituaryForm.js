@@ -4,7 +4,7 @@ import ImageUploader from './ImageUploader';
 import ServiceFields from './ServiceFields';
 import EmbedCodes from './EmbedCodes';
 
-const EMPTY_SERVICE = { date: '', time: '', type: 'Funeral Service', location: '' };
+const EMPTY_SERVICE = { date: '', time: '', type: 'Funeral Service', location: '', virtualLink: '' };
 
 const EMPTY_FORM = {
   fullName: '',
@@ -181,7 +181,7 @@ export default function ObituaryForm({ initial, onSave, onCancel }) {
             <div className="md:col-span-2">
               <Field label="Hometown / Location" id="location">
                 <input id="location" type="text" value={form.location} onChange={set('location')}
-                  placeholder="e.g. Springfield, Illinois" className={inputClass} />
+                  placeholder="e.g. Tooele, Utah" className={inputClass} />
               </Field>
             </div>
           </div>
