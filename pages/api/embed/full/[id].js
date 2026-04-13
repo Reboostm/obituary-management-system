@@ -137,7 +137,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-memory-image img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .rb-fp-lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center}
 .rb-fp-lightbox.active{display:flex}
-.rb-fp-lightbox-content{position:relative;max-width:60vw;max-height:70vh;padding:20px}
+.rb-fp-lightbox-content{position:relative;width:90vw;max-width:60vw;height:auto;max-height:70vh;padding:20px;display:flex;align-items:center;justify-content:center}
 .rb-fp-lightbox-img{max-width:100%;max-height:100%;object-fit:contain}
 .rb-fp-lightbox-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.3);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:24px;cursor:pointer}
 .rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
