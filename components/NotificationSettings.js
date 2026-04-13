@@ -171,7 +171,7 @@ export default function NotificationSettings() {
         <div className="bg-dark-900 border border-gray-700 rounded-lg p-4 text-gray-400 text-sm">
           <p className="font-medium text-gray-300 mb-2">How it works:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>When a new memory is posted, it's scanned for bad keywords</li>
+            <li>When a new memory is posted, it&apos;s scanned for bad keywords</li>
             <li>If flagged, an email is sent to all listed director emails</li>
             <li>Director can review and delete/hide from the memory wall</li>
             <li>API key is stored securely in Firebase</li>
