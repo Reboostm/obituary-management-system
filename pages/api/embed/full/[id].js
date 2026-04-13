@@ -85,7 +85,7 @@ export default async function handler(req, res) {
           const photosHtml = m.photos && m.photos.length > 0
             ? `<div class="rb-fp-memory-images">${m.photos.map((p, i) => `<div class="rb-fp-memory-image" data-img="${esc(p)}"><img src="${esc(p)}" alt="Memory photo"></div>`).join('')}</div>`
             : '';
-          return `<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">${esc(m.name)}</span><span class="rb-fp-memory-rel">${esc(m.relationship)}</span></div><div class="rb-fp-memory-text">${esc(m.memoryText)}</div>${photosHtml}${mDate ? '<div class="rb-fp-memory-date">' + esc(mDate) + '</div>' : ''}</div>`;
+          return `<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">${esc(m.name)}</span><div style="display:flex;align-items:center;gap:8px"><span class="rb-fp-memory-rel">${esc(m.relationship)}</span><button class="rb-fp-memory-share" data-sharer="${esc(m.name)}" title="Share this memory"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.06c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.56 9.31 6.88 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.44-.3 1.96-.77l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg></button></div></div><div class="rb-fp-memory-text">${esc(m.memoryText)}</div>${photosHtml}${mDate ? '<div class="rb-fp-memory-date">' + esc(mDate) + '</div>' : ''}</div>`;
         }).join('');
 
     const apiBase = 'https://obituary-management-system.vercel.app';
@@ -152,6 +152,22 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-submit:disabled{opacity:.6;cursor:default}
 .rb-fp-success{color:#34d399;font-size:.85rem;margin-top:8px}
 .rb-fp-error{color:#f87171;font-size:.85rem;margin-top:8px}
+.rb-fp-share-section{margin-top:24px;margin-bottom:24px}
+.rb-fp-share-buttons{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.rb-fp-share-btn{background:rgba(212,175,127,.1);border:1px solid rgba(212,175,127,.3);color:#d97706;width:44px;height:44px;border-radius:8px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;padding:0}
+.rb-fp-share-btn:hover{background:#d97706;color:#fff;border-color:#d97706;transform:scale(1.05)}
+.rb-fp-share-btn svg{width:20px;height:20px}
+.rb-fp-memory-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rb-fp-memory-actions{display:flex;gap:8px;align-items:center}
+.rb-fp-memory-share{background:none;border:none;color:#6b7280;cursor:pointer;padding:4px;transition:color .2s;font-size:0}
+.rb-fp-memory-share:hover{color:#d97706}
+.rb-fp-memory-share svg{width:16px;height:16px}
+.rb-fp-qr-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:10000;align-items:center;justify-content:center;flex-direction:column}
+.rb-fp-qr-modal.active{display:flex}
+.rb-fp-qr-content{background:#1e1e2e;border:2px solid #d97706;border-radius:12px;padding:32px;text-align:center;position:relative;max-width:400px;color:#d1d5db}
+.rb-fp-qr-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#d97706;font-size:32px;cursor:pointer;transition:color .2s}
+.rb-fp-qr-close:hover{color:#f59e0b}
+.rb-fp-qr-content p{margin-top:16px;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -168,6 +184,7 @@ body{font-family:Georgia,serif;background:transparent}
     ${o.survivors ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Survived By</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.survivors)}</div>` : ''}
     ${o.predeceased ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Preceded in Death By</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.predeceased)}</div>` : ''}
     ${servicesHtml}
+    <div class="rb-fp-share-section"><div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Share This Tribute</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-share-buttons"><button class="rb-fp-share-btn" data-platform="facebook" title="Share on Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button><button class="rb-fp-share-btn" data-platform="twitter" title="Share on Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 002.856-10.986c-3.477.476-6.7 2.237-8.68 4.967.2-1.993-.641-3.8-2.154-5.597-.897 1.8-2.289 3.393-4.113 4.638A4.848 4.848 0 003 12c0 .396.023.787.068 1.171a13.995 13.995 0 0010.079-6.572c.701 1.495.79 3.418.26 5.042 3.355-1.215 6.282-4.69 6.972-8.84.601 4.383-.298 8.946-3.425 12.108-.675.67-1.404 1.295-2.168 1.87 5.524-.975 9.677-5.218 10.201-10.575.057-.629.076-1.263.076-1.9z"/></svg></button><button class="rb-fp-share-btn" data-platform="email" title="Share via Email"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></button><button class="rb-fp-share-btn" data-platform="sms" title="Share via Text"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 8H6v-2h8v2zm6-4H6v-2h14v2z"/></svg></button><button class="rb-fp-share-btn" data-platform="copy" title="Copy Link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg></button><button class="rb-fp-share-btn" data-platform="qr" title="Show QR Code"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm4-4h4v4H7V7zm10-4v8h8V3h-8zm4 4h4v4h-4V7zM3 21h8v-8H3v8zm4-4h4v4H7v-4zm10-4h3v2h-3zm0 4h8v-2h-8zm3-8h-3v3h3z"/></svg></button></div></div>
   </div>
   <div class="rb-fp-mw">
     <div class="rb-fp-mw-title">Memory Wall</div>
@@ -378,10 +395,19 @@ body{font-family:Georgia,serif;background:transparent}
         }
         el.innerHTML = memories.map(function(m) {
           var d = m.createdAt ? new Date(m.createdAt.seconds ? m.createdAt.seconds * 1000 : m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-          return '<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">' + escJs(m.name) + '</span><span class="rb-fp-memory-rel">' + escJs(m.relationship) + '</span></div><div class="rb-fp-memory-text">' + escJs(m.memoryText) + '</div>' + (m.photos && m.photos.length > 0 ? '<div class="rb-fp-memory-images">' + m.photos.map(function(p) { var esc_p = p.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); return '<div class="rb-fp-memory-image" data-img="' + esc_p + '"><img src="' + esc_p + '" alt="Memory photo"></div>'; }).join('') + '</div>' : '') + (d ? '<div class="rb-fp-memory-date">' + d + '</div>' : '') + '</div>';
+          return '<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">' + escJs(m.name) + '</span><div style="display:flex;align-items:center;gap:8px"><span class="rb-fp-memory-rel">' + escJs(m.relationship) + '</span><button class="rb-fp-memory-share" data-sharer="' + escJs(m.name) + '" title="Share this memory"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.06c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.56 9.31 6.88 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.44-.3 1.96-.77l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg></button></div></div><div class="rb-fp-memory-text">' + escJs(m.memoryText) + '</div>' + (m.photos && m.photos.length > 0 ? '<div class="rb-fp-memory-images">' + m.photos.map(function(p) { var esc_p = p.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); return '<div class="rb-fp-memory-image" data-img="' + esc_p + '"><img src="' + esc_p + '" alt="Memory photo"></div>'; }).join('') + '</div>' : '') + (d ? '<div class="rb-fp-memory-date">' + d + '</div>' : '') + '</div>';
         }).join('');
         // Attach click handlers to newly loaded memory images
         attachMemoryImageListeners();
+        // Re-attach share button listeners for newly loaded memories
+        document.querySelectorAll('.rb-fp-memory-share').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var sharer = this.getAttribute('data-sharer');
+            rbShare('facebook', sharer);
+          });
+        });
         setTimeout(notifyHeight, 100);
         document.querySelectorAll('#rb-memories img').forEach(function(img) { img.addEventListener('load', notifyHeight); });
       });
@@ -418,6 +444,102 @@ body{font-family:Georgia,serif;background:transparent}
     });
   }
   attachMemoryImageListeners();
+
+  /* ---- Social Media Sharing ---- */
+  var shareData = {
+    obituaryId: obituaryId,
+    name: '${esc(o.fullName)}',
+    url: (function() {
+      try { return window.location.href; } catch(e) { return '${apiBase}/api/embed/full/${esc(id)}'; }
+    })()
+  };
+
+  window.rbShare = function(platform, memorySharer) {
+    var baseUrl = shareData.url;
+    var personName = shareData.name;
+    var memoryText = memorySharer ? memorySharer + ' shared a memory of ' + personName : 'View ' + personName + '\'s obituary and share memories';
+    var fullText = memoryText + ': ' + baseUrl;
+
+    var shareUrls = {
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(baseUrl),
+      twitter: 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(baseUrl) + '&text=' + encodeURIComponent(memoryText),
+      email: 'mailto:?subject=' + encodeURIComponent('Obituary: ' + personName) + '&body=' + encodeURIComponent(fullText),
+      sms: 'sms:?body=' + encodeURIComponent(fullText),
+      copy: null,
+      qr: null
+    };
+
+    if (platform === 'copy') {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(baseUrl).then(function() {
+          alert('Link copied to clipboard!');
+        }).catch(function() {
+          alert('Could not copy to clipboard');
+        });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = baseUrl;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          alert('Link copied to clipboard!');
+        } catch(e) {
+          alert('Could not copy to clipboard');
+        }
+        document.body.removeChild(ta);
+      }
+    } else if (platform === 'qr') {
+      rbShowQRCode(baseUrl);
+    } else if (shareUrls[platform]) {
+      window.open(shareUrls[platform], '_blank', 'width=600,height=600');
+    }
+  };
+
+  function rbShowQRCode(url) {
+    var modal = document.getElementById('rb-qr-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'rb-qr-modal';
+      modal.className = 'rb-fp-qr-modal active';
+      modal.innerHTML = '<div class="rb-fp-qr-content"><button class="rb-fp-qr-close" onclick="document.getElementById(\'rb-qr-modal\').classList.remove(\'active\')">×</button><div id="rb-qr-code"></div><p>Scan to view obituary</p></div>';
+      document.body.appendChild(modal);
+    }
+    var qrDiv = document.getElementById('rb-qr-code');
+    qrDiv.innerHTML = '';
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.5.3/qrcode.min.js';
+    script.onload = function() {
+      try {
+        new QRCode(qrDiv, { text: url, width: 256, height: 256, colorDark: '#d97706', colorLight: '#1e1e2e' });
+      } catch(e) {
+        qrDiv.innerHTML = '<p style="color:#f87171">Could not generate QR code</p>';
+      }
+    };
+    script.onerror = function() {
+      qrDiv.innerHTML = '<p style="color:#f87171">Could not load QR code library</p>';
+    };
+    document.head.appendChild(script);
+    modal.classList.add('active');
+  }
+
+  /* Share button event listeners */
+  document.querySelectorAll('.rb-fp-share-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      rbShare(this.dataset.platform);
+    });
+  });
+
+  /* Memory card share button listeners */
+  document.querySelectorAll('.rb-fp-memory-share').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var sharer = this.getAttribute('data-sharer');
+      rbShare('facebook', sharer);
+    });
+  });
 
   /* ---- Initial Height & Resize Events ---- */
   notifyHeight();
