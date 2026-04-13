@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     let carouselHtml = '';
     if (o.images && o.images.length > 0) {
       if (o.images.length === 1) {
-        carouselHtml = `<div class="rb-fp-carousel"><img src="${esc(o.images[0])}" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px;display:block"></div>`;
+        carouselHtml = `<div class="rb-fp-carousel"><img src="${esc(o.images[0])}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block"></div>`;
       } else {
         const slides = o.images.map((u) => `<div class="rb-fp-carousel-slide"><img src="${esc(u)}" alt=""></div>`).join('');
         const dots = o.images.map((_, i) => `<span class="rb-fp-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('');
