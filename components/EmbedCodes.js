@@ -142,106 +142,11 @@ else{document.addEventListener('DOMContentLoaded',function(){setTimeout(function
 
 // ─── 3. ALL OBITUARIES LISTING PAGE ──────────────────────────────────────────
 function allObituariesPageCode() {
-  const rootId = 'rb-ao-root';
   return `<!-- ReBoost Marketing – All Obituaries Listing Page -->
 <!-- Paste into a Custom HTML block on your all obituaries/memorial page. -->
-<style>
-.rb-ao-container{font-family:Georgia,serif;padding:24px 0}
-.rb-ao-title{color:#d4af7f;font-size:1.5rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;font-weight:600;text-align:center}
-.rb-ao-subtitle{color:#d1d5db;font-size:1rem;text-align:center;margin-bottom:32px;line-height:1.6}
-.rb-ao-search-wrap{display:flex;justify-content:center;margin-bottom:40px}
-.rb-ao-search{width:100%;max-width:500px;padding:14px 20px;background:#fff;border:1px solid #d4af7f;color:#000;border-radius:8px;font-size:1.05rem}
-.rb-ao-search::placeholder{color:#999}
-.rb-ao-grid{display:grid;grid-template-columns:1fr;gap:28px;max-width:900px;margin:0 auto}
-.rb-ao-card{background:#0a0a0a;border:1px solid #d4af7f;border-radius:12px;overflow:hidden;transition:all .3s ease;display:grid;grid-template-columns:260px 1fr;gap:24px;padding:24px;text-decoration:none;color:inherit;align-items:center}
-.rb-ao-card:nth-child(even){grid-template-columns:1fr 260px}
-.rb-ao-card:nth-child(even) .rb-ao-img-wrap{order:2}
-.rb-ao-card:hover{border-color:#e8c99a;box-shadow:0 4px 20px rgba(212,175,127,.35);transform:translateY(-2px)}
-.rb-ao-card-content{display:flex;flex-direction:column;justify-content:flex-start}
-.rb-ao-card-name{color:#d4af7f;font-size:1.5rem;font-weight:600;margin-bottom:6px}
-.rb-ao-card-dates{color:#d1d5db;font-size:1rem;margin-bottom:8px}
-.rb-ao-card-location{color:#9ca3af;font-size:.95rem;margin-bottom:12px}
-.rb-ao-card-bio{color:#d1d5db;font-size:1rem;line-height:1.6;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:16px}
-.rb-ao-img-wrap{width:260px;height:260px;flex-shrink:0}
-.rb-ao-card-img{width:260px;height:260px;border-radius:8px;object-fit:cover;border:2px solid #d4af7f;display:block}
-.rb-ao-card-placeholder{width:260px;height:260px;border-radius:8px;border:2px solid #d4af7f;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#d4af7f;font-size:3rem}
-.rb-ao-card-btn{display:inline-block;padding:11px 26px;background:transparent;color:#d4af7f;border:1px solid #d4af7f;border-radius:6px;font-size:1rem;font-weight:600;text-decoration:none;width:fit-content;transition:all .2s}
-.rb-ao-card-btn:hover{background:#d4af7f;color:#000}
-.rb-ao-empty{text-align:center;padding:40px;color:#6b7280;font-size:1.1rem}
-</style>
-<div id="${rootId}" class="rb-ao-container">
-  <div class="rb-ao-title">Obituaries</div>
-  <div class="rb-ao-subtitle">Honoring Lives. Sharing Memories. Keeping Loved Ones Close<br>View recent obituaries, share condolences, and celebrate<br>the lives of those who will always be remembered.</div>
-  <div class="rb-ao-search-wrap">
-    <input type="text" id="${rootId}-search" class="rb-ao-search" placeholder="Search obituaries by name..." />
-  </div>
-  <div id="${rootId}-list" class="rb-ao-grid">
-    <div style="text-align:center;color:#9ca3af;padding:40px">Loading obituaries...</div>
-  </div>
-</div>
-<script src="${FB_SDK_APP}"></script>
-<script src="${FB_SDK_FS}"></script>
-<script>
-(function(){
-'use strict';
-var ROOT_ID='${rootId}';
-var SEARCH_ID='${rootId}-search';
-var LIST_ID='${rootId}-list';
-${HELPERS}
-var allObituaries=[];
-function renderObituaries(filtered){
-  var list=document.getElementById(LIST_ID);
-  if(!list)return;
-  if(!filtered||!filtered.length){
-    list.innerHTML='<div class="rb-ao-empty">No obituaries found.</div>';
-    return;
-  }
-  list.innerHTML=filtered.map(function(o){
-    var dates=[o.birthDate,o.deathDate].filter(Boolean).join(' \u2013 ');
-    var excerpt=o.bio?rbEsc(o.bio.slice(0,250))+(o.bio.length>250?'...':''):'';
-    var href=o.url||'#';
-    var img=o.images&&o.images[0]
-      ?'<img class="rb-ao-card-img" src="'+rbEsc(o.images[0])+'" alt="'+rbEsc(o.fullName)+'">'
-      :'<div class="rb-ao-card-placeholder">&#10013;</div>';
-    return '<a href="'+rbEsc(href)+'" target="_top" class="rb-ao-card"><div class="rb-ao-card-content"><div class="rb-ao-card-name">'+rbEsc(o.fullName)+'</div><div class="rb-ao-card-dates">'+rbEsc(dates)+'</div>'+(o.location?'<div class="rb-ao-card-location">'+rbEsc(o.location)+'</div>':'')+'<div class="rb-ao-card-bio">'+excerpt+'</div><span class="rb-ao-card-btn">Visit Obituary</span></div><div class="rb-ao-img-wrap">'+img+'</div></a>';
-  }).join('');
-}
-function handleSearch(){
-  var search=document.getElementById(SEARCH_ID);
-  if(!search)return;
-  var query=search.value.toLowerCase();
-  var filtered=query?allObituaries.filter(function(o){return o.fullName.toLowerCase().includes(query);}):allObituaries;
-  renderObituaries(filtered);
-}
-function load(){
-  var db=rbDb();
-  db.collection('obituaries').where('status','==','published').get()
-    .then(function(snap){
-      allObituaries=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());})
-        .sort(function(a,b){
-          var ta=a.createdAt?(a.createdAt.seconds?a.createdAt.seconds*1000:(a.createdAt.toDate?a.createdAt.toDate().getTime():0)):0;
-          var tb=b.createdAt?(b.createdAt.seconds?b.createdAt.seconds*1000:(b.createdAt.toDate?b.createdAt.toDate().getTime():0)):0;
-          return tb-ta;
-        });
-      renderObituaries(allObituaries);
-      var search=document.getElementById(SEARCH_ID);
-      if(search)search.addEventListener('input',handleSearch);
-    })
-    .catch(function(err){
-      console.error('RB all obituaries error:',err.code,err.message);
-      var list=document.getElementById(LIST_ID);
-      if(list)list.innerHTML='<div class="rb-ao-empty">Unable to load obituaries. Please refresh.</div>';
-    });
-}
-function tryLoad(n){
-  if(typeof firebase!=='undefined'&&typeof firebase.firestore==='function'){load();}
-  else if(n>0){setTimeout(function(){tryLoad(n-1);},300);}
-  else{console.error('RB: Firebase SDK failed to load');}
-}
-if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(function(){tryLoad(15);},100);}
-else{document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){tryLoad(15);},100);});}
-})();
-</script>`;
+<!-- JavaScript is hosted on Vercel — GHL cannot modify it. Auto-updates. -->
+<div id="rb-ao-root"></div>
+<script src="${API_BASE}/api/embed/ao.js"><\/script>`;
 }
 
 // ─── 4. FULL OBITUARY PAGE ───────────────────────────────────────────────────
