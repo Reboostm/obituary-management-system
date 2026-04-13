@@ -127,7 +127,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-mw-title{color:#f59e0b;font-size:1.4rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px;text-align:center}
 .rb-fp-memory-card{background:#13131f;border:1px solid #374151;border-radius:10px;padding:16px;margin-bottom:12px}
 .rb-fp-memory-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.rb-fp-memory-name{color:#f59e0b;font-size:.9rem;font-weight:600}
+.rb-fp-memory-name{color:#f59e0b;font-size:1.3rem;font-weight:700}
 .rb-fp-memory-rel{font-size:.75rem;color:#9ca3af;background:#374151;padding:2px 8px;border-radius:999px}
 .rb-fp-memory-text{color:#d1d5db;font-size:.875rem;line-height:1.65}
 .rb-fp-memory-date{color:#6b7280;font-size:.75rem;margin-top:8px}
@@ -358,6 +358,12 @@ body{font-family:Georgia,serif;background:transparent}
     }
   }
 
+  /* ---- Iframe Height Notification ---- */
+  function notifyHeight() {
+    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight);
+    try { parent.postMessage({ rbHeight: h }, '*'); } catch(e) {}
+  }
+
   /* ---- Refresh Memories ---- */
   function refreshMemories() {
     fetch(apiBase + '/api/memories/' + obituaryId)
@@ -367,12 +373,15 @@ body{font-family:Georgia,serif;background:transparent}
         if (!el) return;
         if (!memories || !memories.length) {
           el.innerHTML = '<p style="color:#6b7280;font-size:.85rem;text-align:center;padding:16px 0">No memories shared yet. Be the first.</p>';
+          notifyHeight();
           return;
         }
         el.innerHTML = memories.map(function(m) {
           var d = m.createdAt ? new Date(m.createdAt.seconds ? m.createdAt.seconds * 1000 : m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-          return '<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">' + escJs(m.name) + '</span><span class="rb-fp-memory-rel">' + escJs(m.relationship) + '</span></div><div class="rb-fp-memory-text">' + escJs(m.memoryText) + '</div>' + (d ? '<div class="rb-fp-memory-date">' + d + '</div>' : '') + '</div>';
+          return '<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">' + escJs(m.name) + '</span><span class="rb-fp-memory-rel">' + escJs(m.relationship) + '</span></div><div class="rb-fp-memory-text">' + escJs(m.memoryText) + '</div>' + (m.photos && m.photos.length > 0 ? '<div class="rb-fp-memory-images">' + m.photos.map(function(p) { return '<div class="rb-fp-memory-image"><img src="' + p + '" alt="Memory photo" onclick="rbOpenLightbox(\'' + p.replace(/'/g, "\\'") + '\')"></div>'; }).join('') + '</div>' : '') + (d ? '<div class="rb-fp-memory-date">' + d + '</div>' : '') + '</div>';
         }).join('');
+        setTimeout(notifyHeight, 100);
+        document.querySelectorAll('#rb-memories img').forEach(function(img) { img.addEventListener('load', notifyHeight); });
       });
   }
 
@@ -395,6 +404,17 @@ body{font-family:Georgia,serif;background:transparent}
     lightbox.addEventListener('click', function(e) {
       if (e.target === this) this.classList.remove('active');
     });
+  }
+
+  /* ---- Initial Height & Resize Events ---- */
+  notifyHeight();
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
+  [100, 300, 600, 1000, 2000].forEach(function(t) { setTimeout(notifyHeight, t); });
+  document.querySelectorAll('img').forEach(function(img) { img.addEventListener('load', notifyHeight); });
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(notifyHeight);
+    ro.observe(document.body);
   }
 })();
 </script>
