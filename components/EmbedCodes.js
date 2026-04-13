@@ -22,23 +22,6 @@ function homePageCode() {
 <!-- Paste ONCE into a Custom HTML block on your homepage. Auto-updates. -->
 <style>
 .rb-hw{font-family:Georgia,serif;padding:24px 0}
-.rb-hw-title{color:#f59e0b;font-size:1.35rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;font-weight:600}
-.rb-ao-container{font-family:Georgia,serif;padding:24px 0}
-.rb-ao-title{color:#f59e0b;font-size:1.35rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;font-weight:600}
-.rb-ao-search{width:100%;max-width:400px;padding:12px 16px;background:#1e1e2e;border:1px solid #374151;color:#fff;border-radius:8px;margin-bottom:24px;font-size:1rem}
-.rb-ao-search::placeholder{color:#6b7280}
-.rb-ao-grid{display:grid;grid-template-columns:1fr;gap:20px}
-.rb-ao-card{background:#1e1e2e;border:1px solid #374151;border-radius:12px;overflow:hidden;transition:border-color .2s;display:grid;grid-template-columns:1fr 200px;gap:20px;padding:20px;cursor:pointer;text-decoration:none;color:inherit}
-.rb-ao-card:nth-child(odd) .rb-ao-card-img{order:2}
-.rb-ao-card:hover{border-color:#d97706}
-.rb-ao-card-content{display:flex;flex-direction:column;justify-content:center}
-.rb-ao-card-name{color:#fff;font-size:1.35rem;font-weight:600;margin-bottom:8px}
-.rb-ao-card-dates{color:#f59e0b;font-size:1.06rem;font-weight:500;margin-bottom:12px}
-.rb-ao-card-bio{color:#9ca3af;font-size:1.09rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
-.rb-ao-card-img{width:200px;height:200px;border-radius:8px;object-fit:cover;border:2px solid #374151}
-.rb-ao-card-btn{display:inline-block;padding:10px 24px;background:#d97706;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.95rem;font-weight:600;transition:background .2s;text-decoration:none}
-.rb-ao-card-btn:hover{background:#b45309}
-.rb-ao-empty{text-align:center;padding:40px;color:#6b7280;font-size:1.1rem}
 .rb-hw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}
 .rb-hw-card{background:#0a0a0a;border:1px solid #d4af7f;border-radius:12px;overflow:hidden;transition:all .3s ease;text-decoration:none;color:inherit;display:flex;flex-direction:column;cursor:pointer}
 .rb-hw-card:hover{border-color:#e8c99a;box-shadow:0 4px 20px rgba(212,175,127,.35);transform:translateY(-2px)}
@@ -73,10 +56,8 @@ function render(){
           ?'<img class="rb-hw-img" src="'+rbEsc(o.images[0])+'" alt="'+rbEsc(o.fullName)+'">'
           :'<div class="rb-hw-placeholder">&#10013;</div>';
         var dates=[o.birthDate,o.deathDate].filter(Boolean).join(' \u2013 ');
-        var rawUrl=o.url||'#';
-        var href=rawUrl;
-        if(rawUrl!=='#'){if(!rawUrl.startsWith('http://'))href='https://'+rawUrl;href=href.replace(/\/obituaries[-/]+([^/?#]+)/,'/obituaries-$1');}
-        return '<div class="rb-hw-card" onclick="window.top.location.href=\''+rbEsc(href)+'\';return false;" style="cursor:pointer">'+img+'<div class="rb-hw-content"><div><div class="rb-hw-name">'+rbEsc(o.fullName)+'</div><div class="rb-hw-dates">'+rbEsc(dates)+'</div></div><button class="rb-hw-btn">Read Obituary</button></div></div>';
+        var href=o.url||'#';
+        return '<a href="'+rbEsc(href)+'" target="_top" class="rb-hw-card">'+img+'<div class="rb-hw-content"><div><div class="rb-hw-name">'+rbEsc(o.fullName)+'</div><div class="rb-hw-dates">'+rbEsc(dates)+'</div></div><button class="rb-hw-btn">Read Obituary</button></div></a>';
       }).join('');
     })
     .catch(function(err){
@@ -164,9 +145,36 @@ function allObituariesPageCode() {
   const rootId = 'rb-ao-root';
   return `<!-- ReBoost Marketing – All Obituaries Listing Page -->
 <!-- Paste into a Custom HTML block on your all obituaries/memorial page. -->
+<style>
+.rb-ao-container{font-family:Georgia,serif;padding:24px 0}
+.rb-ao-title{color:#d4af7f;font-size:1.5rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;font-weight:600;text-align:center}
+.rb-ao-subtitle{color:#d1d5db;font-size:1rem;text-align:center;margin-bottom:32px;line-height:1.6}
+.rb-ao-search-wrap{display:flex;justify-content:center;margin-bottom:40px}
+.rb-ao-search{width:100%;max-width:500px;padding:14px 20px;background:#fff;border:1px solid #d4af7f;color:#000;border-radius:8px;font-size:1.05rem}
+.rb-ao-search::placeholder{color:#999}
+.rb-ao-grid{display:grid;grid-template-columns:1fr;gap:28px;max-width:900px;margin:0 auto}
+.rb-ao-card{background:#0a0a0a;border:1px solid #d4af7f;border-radius:12px;overflow:hidden;transition:all .3s ease;display:grid;grid-template-columns:260px 1fr;gap:24px;padding:24px;text-decoration:none;color:inherit;align-items:center}
+.rb-ao-card:nth-child(even){grid-template-columns:1fr 260px}
+.rb-ao-card:nth-child(even) .rb-ao-img-wrap{order:2}
+.rb-ao-card:hover{border-color:#e8c99a;box-shadow:0 4px 20px rgba(212,175,127,.35);transform:translateY(-2px)}
+.rb-ao-card-content{display:flex;flex-direction:column;justify-content:flex-start}
+.rb-ao-card-name{color:#d4af7f;font-size:1.5rem;font-weight:600;margin-bottom:6px}
+.rb-ao-card-dates{color:#d1d5db;font-size:1rem;margin-bottom:8px}
+.rb-ao-card-location{color:#9ca3af;font-size:.95rem;margin-bottom:12px}
+.rb-ao-card-bio{color:#d1d5db;font-size:1rem;line-height:1.6;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:16px}
+.rb-ao-img-wrap{width:260px;height:260px;flex-shrink:0}
+.rb-ao-card-img{width:260px;height:260px;border-radius:8px;object-fit:cover;border:2px solid #d4af7f;display:block}
+.rb-ao-card-placeholder{width:260px;height:260px;border-radius:8px;border:2px solid #d4af7f;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#d4af7f;font-size:3rem}
+.rb-ao-card-btn{display:inline-block;padding:11px 26px;background:transparent;color:#d4af7f;border:1px solid #d4af7f;border-radius:6px;font-size:1rem;font-weight:600;text-decoration:none;width:fit-content;transition:all .2s}
+.rb-ao-card-btn:hover{background:#d4af7f;color:#000}
+.rb-ao-empty{text-align:center;padding:40px;color:#6b7280;font-size:1.1rem}
+</style>
 <div id="${rootId}" class="rb-ao-container">
-  <div class="rb-ao-title">Our Community</div>
-  <input type="text" id="${rootId}-search" class="rb-ao-search" placeholder="Search by name..." />
+  <div class="rb-ao-title">Obituaries</div>
+  <div class="rb-ao-subtitle">Honoring Lives. Sharing Memories. Keeping Loved Ones Close<br>View recent obituaries, share condolences, and celebrate<br>the lives of those who will always be remembered.</div>
+  <div class="rb-ao-search-wrap">
+    <input type="text" id="${rootId}-search" class="rb-ao-search" placeholder="Search obituaries by name..." />
+  </div>
   <div id="${rootId}-list" class="rb-ao-grid">
     <div style="text-align:center;color:#9ca3af;padding:40px">Loading obituaries...</div>
   </div>
@@ -188,12 +196,14 @@ function renderObituaries(filtered){
     list.innerHTML='<div class="rb-ao-empty">No obituaries found.</div>';
     return;
   }
-  list.innerHTML=filtered.map(function(o,i){
+  list.innerHTML=filtered.map(function(o){
     var dates=[o.birthDate,o.deathDate].filter(Boolean).join(' \u2013 ');
-    var excerpt=o.bio?rbEsc(o.bio.slice(0,180))+(o.bio.length>180?'...':''):'';
+    var excerpt=o.bio?rbEsc(o.bio.slice(0,250))+(o.bio.length>250?'...':''):'';
     var href=o.url||'#';
-    var img=o.images&&o.images[0]?'<img class="rb-ao-card-img" src="'+rbEsc(o.images[0])+'" alt="'+rbEsc(o.fullName)+'">':'<div class="rb-ao-card-img" style="background:#374151;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:3rem">&#10013;</div>';
-    return '<a href="'+rbEsc(href)+'" class="rb-ao-card"><div class="rb-ao-card-content"><div class="rb-ao-card-name">'+rbEsc(o.fullName)+'</div><div class="rb-ao-card-dates">'+rbEsc(dates)+'</div><div class="rb-ao-card-bio">'+excerpt+'</div><a href="'+rbEsc(href)+'" class="rb-ao-card-btn" onclick="event.stopPropagation()">Visit Obituary</a></div>'+img+'</a>';
+    var img=o.images&&o.images[0]
+      ?'<img class="rb-ao-card-img" src="'+rbEsc(o.images[0])+'" alt="'+rbEsc(o.fullName)+'">'
+      :'<div class="rb-ao-card-placeholder">&#10013;</div>';
+    return '<a href="'+rbEsc(href)+'" target="_top" class="rb-ao-card"><div class="rb-ao-card-content"><div class="rb-ao-card-name">'+rbEsc(o.fullName)+'</div><div class="rb-ao-card-dates">'+rbEsc(dates)+'</div>'+(o.location?'<div class="rb-ao-card-location">'+rbEsc(o.location)+'</div>':'')+'<div class="rb-ao-card-bio">'+excerpt+'</div><span class="rb-ao-card-btn">Visit Obituary</span></div><div class="rb-ao-img-wrap">'+img+'</div></a>';
   }).join('');
 }
 function handleSearch(){
