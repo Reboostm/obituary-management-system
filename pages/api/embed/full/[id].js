@@ -457,7 +457,7 @@ body{font-family:Georgia,serif;background:transparent}
   window.rbShare = function(platform, memorySharer) {
     var baseUrl = shareData.url;
     var personName = shareData.name;
-    var memoryText = memorySharer ? memorySharer + ' shared a memory of ' + personName : 'View ' + personName + String.fromCharCode(39) + 's obituary and share memories';
+    var memoryText = memorySharer ? memorySharer + ' shared a memory of ' + personName : 'View ' + personName + ' obituary and share memories';
     var fullText = memoryText + ': ' + baseUrl;
 
     var shareUrls = {
@@ -502,8 +502,14 @@ body{font-family:Georgia,serif;background:transparent}
       modal = document.createElement('div');
       modal.id = 'rb-qr-modal';
       modal.className = 'rb-fp-qr-modal active';
-      modal.innerHTML = '<div class="rb-fp-qr-content"><button class="rb-fp-qr-close" onclick="document.getElementById(\'rb-qr-modal\').classList.remove(\'active\')">×</button><div id="rb-qr-code"></div><p>Scan to view obituary</p></div>';
+      modal.innerHTML = '<div class="rb-fp-qr-content"><button class="rb-fp-qr-close">×</button><div id="rb-qr-code"></div><p>Scan to view obituary</p></div>';
       document.body.appendChild(modal);
+      var closeBtn = modal.querySelector('.rb-fp-qr-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+          modal.classList.remove('active');
+        });
+      }
     }
     var qrDiv = document.getElementById('rb-qr-code');
     qrDiv.innerHTML = '';
