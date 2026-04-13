@@ -104,7 +104,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-body{background:#f9fafb;padding:32px;border-radius:0 0 16px 16px}
 .rb-fp-carousel{position:relative;margin-bottom:28px;border-radius:12px;overflow:hidden}
 .rb-fp-carousel-track{display:flex;transition:transform .4s ease}
-.rb-fp-carousel-slide{min-width:100%;aspect-ratio:4/3;max-height:280px;background:#111827}
+.rb-fp-carousel-slide{min-width:100%;aspect-ratio:16/6;background:#111827}
 .rb-fp-carousel-slide img{width:100%;height:100%;object-fit:cover}
 .rb-fp-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem}
 .rb-fp-carousel-btn.prev{left:8px}.rb-fp-carousel-btn.next{right:8px}
