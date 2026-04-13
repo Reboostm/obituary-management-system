@@ -123,7 +123,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-service-type{color:#92400e;font-size:1rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
 .rb-fp-service-datetime{color:#1f2937;font-size:.9rem;font-weight:600}
 .rb-fp-service-loc{color:#4b5563;font-size:.82rem;margin-top:2px}
-.rb-fp-mw{margin-top:-16px;background:linear-gradient(180deg,#1e1e2e 0%,#252533 100%);border-radius:0;padding:40px 32px;border:none;border-top:1px solid rgba(217,119,6,.15);box-shadow:none}
+.rb-fp-mw{margin-top:-32px;background:linear-gradient(180deg,#1e1e2e 0%,#252533 100%);border-radius:0;padding:40px 32px;border:none;border-top:1px solid rgba(217,119,6,.15);box-shadow:none}
 .rb-fp-mw-title{color:#f59e0b;font-size:1.8rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.5)}
 .rb-fp-memory-card{background:linear-gradient(135deg,#13131f 0%,#1a1a26 100%);border:2px solid #d4af7f;border-radius:14px;padding:20px;margin-bottom:18px;transition:all .3s ease;box-shadow:0 2px 8px rgba(212,175,127,.1)}
 .rb-fp-memory-card:hover{border-color:#f3c071;box-shadow:0 8px 20px rgba(212,175,127,.25);transform:translateY(-2px)}
