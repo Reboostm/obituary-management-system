@@ -137,7 +137,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-memory-image img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .rb-fp-lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center}
 .rb-fp-lightbox.active{display:flex}
-.rb-fp-lightbox-content{position:relative;max-width:90vw;max-height:90vh}
+.rb-fp-lightbox-content{position:relative;max-width:60vw;max-height:70vh;padding:20px}
 .rb-fp-lightbox-img{max-width:100%;max-height:100%;object-fit:contain}
 .rb-fp-lightbox-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.3);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:24px;cursor:pointer}
 .rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
@@ -306,8 +306,34 @@ body{font-family:Georgia,serif;background:transparent}
         Array.from(this.files).forEach(function(file) {
           var reader = new FileReader();
           reader.onload = function(e) {
-            selectedPhotos.push(e.target.result);
-            updatePreview();
+            // Compress image to reduce file size
+            var img = new Image();
+            img.onload = function() {
+              var canvas = document.createElement('canvas');
+              var maxWidth = 800;
+              var maxHeight = 800;
+              var width = img.width;
+              var height = img.height;
+              if (width > height) {
+                if (width > maxWidth) {
+                  height *= maxWidth / width;
+                  width = maxWidth;
+                }
+              } else {
+                if (height > maxHeight) {
+                  width *= maxHeight / height;
+                  height = maxHeight;
+                }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              var compressedData = canvas.toDataURL('image/jpeg', 0.7);
+              selectedPhotos.push(compressedData);
+              updatePreview();
+            };
+            img.src = e.target.result;
           };
           reader.readAsDataURL(file);
         });
