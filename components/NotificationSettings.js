@@ -19,9 +19,11 @@ export default function NotificationSettings() {
   const [message, setMessage] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
 
-  // Load settings from Firestore
+  // Load settings from Firestore (client-side only)
   useEffect(() => {
-    loadSettings();
+    if (typeof window !== 'undefined') {
+      loadSettings();
+    }
   }, []);
 
   const loadSettings = async () => {
