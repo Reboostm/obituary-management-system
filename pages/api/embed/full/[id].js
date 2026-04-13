@@ -102,7 +102,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-dates{color:#f59e0b;font-size:1rem;letter-spacing:.1em}
 .rb-fp-loc{color:#9ca3af;font-size:.875rem;margin-top:8px;font-style:italic}
 .rb-fp-body{background:#f9fafb;padding:32px;border-radius:0 0 16px 16px}
-.rb-fp-carousel{position:relative;margin-bottom:20px;border-radius:12px;overflow:hidden;width:180px;height:200px}
+.rb-fp-carousel{position:relative;margin:0 auto 20px;border-radius:12px;overflow:hidden;width:180px;height:200px}
 .rb-fp-carousel-track{display:flex;transition:transform .4s ease;height:100%}
 .rb-fp-carousel-slide{min-width:100%;height:100%;background:#111827}
 .rb-fp-carousel-slide img{width:100%;height:100%;object-fit:cover}
