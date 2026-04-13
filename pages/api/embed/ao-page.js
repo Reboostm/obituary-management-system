@@ -50,11 +50,8 @@ export default async function handler(req, res) {
             + '<span class="card-btn">Visit Obituary</span>'
             + '</div>';
           const imgHtml = '<div class="img-wrap">' + img + '</div>';
-          // Alternate: even index = image left, odd index = image right
-          const inner = i % 2 === 0
-            ? imgHtml + contentHtml
-            : contentHtml + imgHtml;
-          return '<a href="' + href + '" target="_top" class="card">' + inner + '</a>';
+          // Consistent: image always left, content always right
+          return '<a href="' + href + '" target="_top" class="card">' + imgHtml + contentHtml + '</a>';
         }).join('');
 
     const css = [
