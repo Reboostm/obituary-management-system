@@ -154,7 +154,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-submit:disabled{opacity:.6;cursor:default}
 .rb-fp-success{color:#34d399;font-size:.85rem;margin-top:8px}
 .rb-fp-error{color:#f87171;font-size:.85rem;margin-top:8px}
-.rb-fp-share-section{margin-top:32px;margin-bottom:0;margin-left:-32px;margin-right:-32px;background:#000;border:none;border-radius:0;padding:24px 32px}
+.rb-fp-share-section{margin-top:32px;margin-bottom:0;background:#000;border:none;border-radius:0;padding:24px 32px}
 .rb-fp-share-buttons{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto}
 .rb-fp-share-btn{background:#d4af7f;color:#000;border:none;border-radius:12px;cursor:pointer;transition:all .3s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px;font-size:.85rem;font-weight:700;letter-spacing:.08em;min-width:100px;box-shadow:0 4px 12px rgba(212,175,127,.3);text-transform:uppercase}
 .rb-fp-share-btn:hover{background:#f3c071;transform:translateY(-2px);box-shadow:0 6px 16px rgba(212,175,127,.4)}
