@@ -78,11 +78,14 @@ export default async function handler(req, res) {
     // Build memories HTML
     const memoriesHtml = memories.length === 0
       ? '<p style="color:#6b7280;font-size:.85rem;text-align:center;padding:16px 0">No memories shared yet. Be the first.</p>'
-      : memories.map((m) => {
+      : memories.map((m, idx) => {
           const mDate = m.createdAt?.toDate
             ? m.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
             : '';
-          return `<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">${esc(m.name)}</span><span class="rb-fp-memory-rel">${esc(m.relationship)}</span></div><div class="rb-fp-memory-text">${esc(m.memoryText)}</div>${mDate ? '<div class="rb-fp-memory-date">' + esc(mDate) + '</div>' : ''}</div>`;
+          const photosHtml = m.photos && m.photos.length > 0
+            ? `<div class="rb-fp-memory-images" id="rb-mphoto-${idx}">${m.photos.map((p, pi) => `<div class="rb-fp-memory-image" onclick="rbMemoryPhoto(${idx},${pi})"><img src="${esc(p)}" alt="Memory photo"></div>`).join('')}</div>`
+            : '';
+          return `<div class="rb-fp-memory-card"><div class="rb-fp-memory-header"><span class="rb-fp-memory-name">${esc(m.name)}</span><span class="rb-fp-memory-rel">${esc(m.relationship)}</span></div><div class="rb-fp-memory-text">${esc(m.memoryText)}</div>${photosHtml}${mDate ? '<div class="rb-fp-memory-date">' + esc(mDate) + '</div>' : ''}</div>`;
         }).join('');
 
     const apiBase = 'https://obituary-management-system.vercel.app';
@@ -121,13 +124,16 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-service-datetime{color:#1f2937;font-size:.9rem;font-weight:600}
 .rb-fp-service-loc{color:#4b5563;font-size:.82rem;margin-top:2px}
 .rb-fp-mw{margin-top:32px;background:#1e1e2e;border-radius:12px;padding:24px}
-.rb-fp-mw-title{color:#f59e0b;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.rb-fp-mw-title{color:#f59e0b;font-size:1.4rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px;text-align:center}
 .rb-fp-memory-card{background:#13131f;border:1px solid #374151;border-radius:10px;padding:16px;margin-bottom:12px}
 .rb-fp-memory-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.rb-fp-memory-name{color:#fff;font-size:.9rem;font-weight:600}
+.rb-fp-memory-name{color:#f59e0b;font-size:.9rem;font-weight:600}
 .rb-fp-memory-rel{font-size:.75rem;color:#9ca3af;background:#374151;padding:2px 8px;border-radius:999px}
 .rb-fp-memory-text{color:#d1d5db;font-size:.875rem;line-height:1.65}
 .rb-fp-memory-date{color:#6b7280;font-size:.75rem;margin-top:8px}
+.rb-fp-memory-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin:12px 0}
+.rb-fp-memory-image{width:100%;aspect-ratio:1;border-radius:6px;border:1px solid #374151;overflow:hidden;cursor:pointer}
+.rb-fp-memory-image img{width:100%;height:100%;object-fit:cover}
 .rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
 .rb-fp-form-title{color:#fff;font-size:.9rem;margin-bottom:14px}
 .rb-fp-field{margin-bottom:12px}
@@ -165,6 +171,8 @@ body{font-family:Georgia,serif;background:transparent}
       <div class="rb-fp-field"><label class="rb-fp-label">Your Name</label><input class="rb-fp-input" id="rb-mname" placeholder="Jane Smith"></div>
       <div class="rb-fp-field"><label class="rb-fp-label">Relationship</label><select class="rb-fp-select" id="rb-mrel"><option>Family</option><option>Friend</option><option>Colleague</option><option>Other</option></select></div>
       <div class="rb-fp-field"><label class="rb-fp-label">Your Memory</label><textarea class="rb-fp-textarea" id="rb-mtext" placeholder="Share a favorite memory..."></textarea></div>
+      <div class="rb-fp-field"><label class="rb-fp-label">Photos (Optional)</label><input type="file" class="rb-fp-input" id="rb-mphoto" accept="image/*" multiple style="padding:8px"></div>
+      <div id="rb-mphoto-preview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:12px"></div>
       <button class="rb-fp-submit" id="rb-msubmit">Share Memory</button>
       <div id="rb-mmsg"></div>
     </div>
@@ -198,13 +206,14 @@ body{font-family:Georgia,serif;background:transparent}
     setInterval(function() { carIdx = (carIdx + 1) % totalSlides; updateCarousel(); }, 4000);
   }
 
-  /* ---- Memory Submission ---- */
+  /* ---- Memory Submission with Photos ---- */
   var btn = document.getElementById('rb-msubmit');
   if (btn) {
     btn.addEventListener('click', function() {
       var nameEl = document.getElementById('rb-mname');
       var relEl = document.getElementById('rb-mrel');
       var textEl = document.getElementById('rb-mtext');
+      var photoEl = document.getElementById('rb-mphoto');
       var msgEl = document.getElementById('rb-mmsg');
       var name = nameEl.value.trim();
       var rel = relEl.value;
@@ -218,26 +227,71 @@ body{font-family:Georgia,serif;background:transparent}
       btn.disabled = true;
       btn.textContent = 'Submitting...';
 
-      fetch(apiBase + '/api/memories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ obituaryId: obituaryId, name: name, relationship: rel, memoryText: text, photos: [] })
-      })
-      .then(function(res) { return res.json(); })
-      .then(function() {
-        nameEl.value = '';
-        textEl.value = '';
-        msgEl.innerHTML = '<div class="rb-fp-success">&#10003; Your memory has been shared. Thank you.</div>';
-        refreshMemories();
-      })
-      .catch(function() {
-        msgEl.innerHTML = '<div class="rb-fp-error">Unable to submit. Please try again.</div>';
-      })
-      .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Share Memory';
-      });
+      // Handle photo uploads
+      var photos = [];
+      if (photoEl && photoEl.files && photoEl.files.length > 0) {
+        var fileCount = 0;
+        Array.from(photoEl.files).forEach(function(file) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            photos.push(e.target.result);
+            fileCount++;
+            if (fileCount === photoEl.files.length) {
+              submitMemory(name, rel, text, photos);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        submitMemory(name, rel, text, photos);
+      }
+
+      function submitMemory(name, rel, text, photos) {
+        fetch(apiBase + '/api/memories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ obituaryId: obituaryId, name: name, relationship: rel, memoryText: text, photos: photos })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function() {
+          nameEl.value = '';
+          textEl.value = '';
+          photoEl.value = '';
+          document.getElementById('rb-mphoto-preview').innerHTML = '';
+          msgEl.innerHTML = '<div class="rb-fp-success">&#10003; Your memory has been shared. Thank you.</div>';
+          refreshMemories();
+        })
+        .catch(function() {
+          msgEl.innerHTML = '<div class="rb-fp-error">Unable to submit. Please try again.</div>';
+        })
+        .finally(function() {
+          btn.disabled = false;
+          btn.textContent = 'Share Memory';
+        });
+      }
     });
+
+    // Photo preview
+    var photoEl = document.getElementById('rb-mphoto');
+    if (photoEl) {
+      photoEl.addEventListener('change', function() {
+        var preview = document.getElementById('rb-mphoto-preview');
+        preview.innerHTML = '';
+        Array.from(this.files).forEach(function(file) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '80px';
+            img.style.height = '80px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '6px';
+            preview.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+    }
   }
 
   /* ---- Refresh Memories ---- */
@@ -261,6 +315,36 @@ body{font-family:Georgia,serif;background:transparent}
   function escJs(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+
+  /* ---- Memory Photo Rotation ---- */
+  var memoryPhotoIntervals = {};
+  window.rbMemoryPhoto = function(memIdx, photoIdx) {
+    var el = document.getElementById('rb-mphoto-' + memIdx);
+    if (!el) return;
+    var imgs = el.querySelectorAll('img');
+    if (imgs.length <= 1) return;
+
+    if (memoryPhotoIntervals[memIdx]) clearInterval(memoryPhotoIntervals[memIdx]);
+
+    var idx = photoIdx;
+    memoryPhotoIntervals[memIdx] = setInterval(function() {
+      idx = (idx + 1) % imgs.length;
+      imgs.forEach(function(img, i) { img.style.display = i === idx ? 'block' : 'none'; });
+    }, 4000);
+
+    imgs.forEach(function(img, i) { img.style.display = i === photoIdx ? 'block' : 'none'; });
+  };
+
+  /* Initialize photo rotation on load */
+  setTimeout(function() {
+    document.querySelectorAll('[id^="rb-mphoto-"]').forEach(function(el) {
+      var memIdx = el.id.replace('rb-mphoto-', '');
+      var imgs = el.querySelectorAll('img');
+      if (imgs.length > 1) {
+        window.rbMemoryPhoto(memIdx, 0);
+      }
+    });
+  }, 100);
 })();
 </script>
 </body>
