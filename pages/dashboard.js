@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [memoriesObit, setMemoriesObit] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [viewHistory, setViewHistory] = useState(['list']); // Track view history for back button
+  const [searchQuery, setSearchQuery] = useState(''); // Search functionality
 
   // Auth guard
   useEffect(() => {
@@ -125,6 +126,11 @@ export default function Dashboard() {
 
   const counts = STATUS_COUNTS(obituaries);
 
+  // Filter obituaries based on search query
+  const filteredObituaries = obituaries.filter((obit) =>
+    obit.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
       <Head>
@@ -199,6 +205,28 @@ export default function Dashboard() {
                 </button>
               </div>
 
+              {/* Search Bar */}
+              <div className="mb-6 relative">
+                <input
+                  type="text"
+                  placeholder="Search obituaries by name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-dark-800 border border-gray-700 text-white px-4 py-3 rounded-lg text-sm focus:outline-none focus:border-gold-400 transition"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-white transition"
+                    title="Clear search"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
               {/* Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {[
@@ -213,8 +241,15 @@ export default function Dashboard() {
                 ))}
               </div>
 
+              {/* Search Results Info */}
+              {searchQuery && (
+                <p className="text-gray-400 text-sm mb-4">
+                  Showing {filteredObituaries.length} of {obituaries.length} record{obituaries.length !== 1 ? 's' : ''}
+                </p>
+              )}
+
               <ObituaryList
-                obituaries={obituaries}
+                obituaries={filteredObituaries}
                 loading={loading}
                 onEdit={handleEdit}
                 onPreview={handlePreview}
