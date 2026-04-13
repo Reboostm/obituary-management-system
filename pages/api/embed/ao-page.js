@@ -50,8 +50,11 @@ export default async function handler(req, res) {
             + '<span class="card-btn">Visit Obituary</span>'
             + '</div>';
           const imgHtml = '<div class="img-wrap">' + img + '</div>';
-          // Consistent layout: image always left, content always right
-          return '<a href="' + href + '" target="_top" class="card">' + imgHtml + contentHtml + '</a>';
+          // Alternate: even index = image left, odd index = image right
+          const inner = i % 2 === 0
+            ? imgHtml + contentHtml
+            : contentHtml + imgHtml;
+          return '<a href="' + href + '" target="_top" class="card">' + inner + '</a>';
         }).join('');
 
     const css = [
@@ -71,9 +74,9 @@ export default async function handler(req, res) {
       '.card-dates{color:#d1d5db;font-size:1rem;margin-bottom:6px;font-weight:500}',
       '.card-location{color:#9ca3af;font-size:.9rem;margin-bottom:12px}',
       '.card-bio{color:#d1d5db;font-size:.95rem;line-height:1.65;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:16px}',
-      '.img-wrap{width:260px;height:280px;flex-shrink:0}',
-      '.card-img{width:260px;height:280px;border-radius:8px;object-fit:cover;object-position:center;border:2px solid #d4af7f;display:block;background:#111}',
-      '.card-placeholder{width:260px;height:280px;border-radius:8px;border:2px solid #d4af7f;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#d4af7f;font-size:3rem}',
+      '.img-wrap{width:100%;height:280px;flex-shrink:0}',
+      '.card-img{width:100%;height:280px;border-radius:8px;object-fit:cover;object-position:center;border:2px solid #d4af7f;display:block;background:#111}',
+      '.card-placeholder{width:100%;height:280px;border-radius:8px;border:2px solid #d4af7f;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#d4af7f;font-size:3rem}',
       '.card-btn{display:inline-block;padding:10px 24px;background:transparent;color:#d4af7f;border:1px solid #d4af7f;border-radius:6px;font-size:1rem;font-weight:600;text-decoration:none;transition:all .2s;align-self:flex-start;white-space:nowrap}',
       '.card-btn:hover{background:#d4af7f;color:#000}',
       '.empty{text-align:center;padding:40px;color:#6b7280;font-size:1.1rem}',
