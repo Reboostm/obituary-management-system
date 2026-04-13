@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     let carouselHtml = '';
     if (o.images && o.images.length > 0) {
       if (o.images.length === 1) {
-        carouselHtml = `<div class="rb-fp-carousel"><img src="${esc(o.images[0])}" style="width:100%;height:200px;object-fit:cover;border-radius:12px;display:block"></div>`;
+        carouselHtml = `<div class="rb-fp-carousel"><img src="${esc(o.images[0])}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;display:block"></div>`;
       } else {
         const slides = o.images.map((u) => `<div class="rb-fp-carousel-slide"><img src="${esc(u)}" alt=""></div>`).join('');
         const dots = o.images.map((_, i) => `<span class="rb-fp-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('');
@@ -102,7 +102,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-dates{color:#f59e0b;font-size:1rem;letter-spacing:.1em}
 .rb-fp-loc{color:#9ca3af;font-size:.875rem;margin-top:8px;font-style:italic}
 .rb-fp-body{background:#f9fafb;padding:32px;border-radius:0 0 16px 16px}
-.rb-fp-carousel{position:relative;margin-bottom:28px;border-radius:12px;overflow:hidden;height:200px;max-width:500px;margin-left:auto;margin-right:auto}
+.rb-fp-carousel{position:relative;float:left;margin-right:20px;margin-bottom:20px;border-radius:12px;overflow:hidden;width:180px;height:200px}
 .rb-fp-carousel-track{display:flex;transition:transform .4s ease;height:100%}
 .rb-fp-carousel-slide{min-width:100%;height:100%;background:#111827}
 .rb-fp-carousel-slide img{width:100%;height:100%;object-fit:cover}
