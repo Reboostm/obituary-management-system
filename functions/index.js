@@ -107,7 +107,7 @@ exports.checkMemoryForSpam = functions.firestore
         <p><strong>Reason flagged:</strong> Contains suspicious keywords or patterns</p>
 
         <p style="margin-top: 20px;">
-          <a href="https://your-dashboard-url.com/dashboard" style="background-color: #d97706; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          <a href="https://didericksenmemorialfuneralservices.com/dashboard" style="background-color: #d97706; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View in Dashboard
           </a>
         </p>
@@ -119,6 +119,7 @@ exports.checkMemoryForSpam = functions.firestore
 
       // Send email to all directors
       try {
+        console.log(`📧 Attempting to send email via Resend...`);
         const emailResult = await resend.emails.send({
           from: 'noreply@resend.dev',
           to: emailList,
@@ -126,9 +127,19 @@ exports.checkMemoryForSpam = functions.firestore
           html: emailHtml,
         });
 
-        console.log(`✅ Spam alert sent to ${emailList.join(', ')} for memory ${memoryId}. Resend ID: ${emailResult.id}`);
+        console.log(`📧 Resend Response:`, JSON.stringify(emailResult));
+
+        if (emailResult.id) {
+          console.log(`✅ Spam alert sent to ${emailList.join(', ')} for memory ${memoryId}. Resend ID: ${emailResult.id}`);
+        } else if (emailResult.error) {
+          console.error(`❌ Resend Error: ${emailResult.error}`);
+          throw new Error(`Resend error: ${emailResult.error}`);
+        } else {
+          console.error(`❌ Invalid Resend response - no ID or error:`, JSON.stringify(emailResult));
+          throw new Error(`Invalid Resend response`);
+        }
       } catch (emailError) {
-        console.error(`❌ Failed to send email: ${emailError.message}`);
+        console.error(`❌ Email send failed: ${emailError.message}`);
         throw emailError;
       }
 
