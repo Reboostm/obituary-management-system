@@ -146,7 +146,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-lightbox{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:9999;align-items:center;justify-content:center;padding:40px 20px}
 .rb-fp-lightbox.active{display:flex !important}
 .rb-fp-lightbox-content{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;z-index:10001}
-.rb-fp-lightbox-img{max-width:95%;max-height:90%;width:auto;height:auto;object-fit:contain;display:block;z-index:10001;background:#000;padding:10px}
+.rb-fp-lightbox-img{max-width:95%;max-height:90%;width:auto;height:auto;object-fit:contain;display:block;z-index:10001;background:#000;padding:10px;margin:0 auto;border:2px solid #d4af7f}
 .rb-fp-lightbox-close{position:absolute;top:20px;right:20px;background:rgba(212,175,127,.4);color:#d4af7f;border:none;width:48px;height:48px;border-radius:50%;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10002}
 .rb-fp-lightbox-close:hover{background:rgba(212,175,127,.5);color:#f3c071}
 .rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
@@ -429,7 +429,12 @@ body{font-family:Georgia,serif;background:transparent}
   window.rbOpenLightbox = function(imageSrc) {
     var lightbox = document.getElementById('rb-lightbox');
     var img = document.getElementById('rb-lightbox-img');
+    console.log('Opening lightbox with image:', imageSrc);
     img.src = imageSrc;
+    img.onerror = function() {
+      console.error('Failed to load image:', imageSrc);
+      img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23333" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%" y="50%" font-size="16" text-anchor="middle" dy=".3em"%3EImage not found%3C/text%3E%3C/svg%3E';
+    };
     lightbox.classList.add('active');
   };
 
