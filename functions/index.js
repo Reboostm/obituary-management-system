@@ -107,7 +107,7 @@ exports.checkMemoryForSpam = functions.firestore
         <p><strong>Reason flagged:</strong> Contains suspicious keywords or patterns</p>
 
         <p style="margin-top: 20px;">
-          <a href="https://didericksenmemorialfuneralservices.com/dashboard" style="background-color: #d97706; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          <a href="https://obituary-management-system.vercel.app/dashboard" style="background-color: #d97706; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View in Dashboard
           </a>
         </p>
