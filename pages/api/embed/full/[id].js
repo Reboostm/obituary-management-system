@@ -564,14 +564,25 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
     console.log('WINDOW LOAD EVENT FIRED');
     if (window.__obituaryData) {
       console.log('SENDING OBIT DATA:', window.__obituaryData);
+      // Try window.top first (for nested iframes)
       try {
-        parent.postMessage({
+        window.top.postMessage({
           type: 'rbObituaryData',
           payload: window.__obituaryData
         }, 'https://didericksenmemorialfuneralservices.com');
-        console.log('POSTMESSAGE SENT');
+        console.log('POSTMESSAGE SENT TO WINDOW.TOP');
       } catch(e) {
-        console.error('POSTMESSAGE ERROR:', e);
+        console.error('WINDOW.TOP ERROR:', e);
+      }
+      // Fallback to parent
+      try {
+        window.parent.postMessage({
+          type: 'rbObituaryData',
+          payload: window.__obituaryData
+        }, 'https://didericksenmemorialfuneralservices.com');
+        console.log('POSTMESSAGE SENT TO WINDOW.PARENT');
+      } catch(e) {
+        console.error('WINDOW.PARENT ERROR:', e);
       }
     } else {
       console.warn('NO OBITUARY DATA TO SEND');
