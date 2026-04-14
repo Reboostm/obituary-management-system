@@ -11,6 +11,7 @@ export default function NotificationSettings() {
   const [settings, setSettings] = useState({
     resendApiKey: '',
     directorEmails: 'justinmhomeloans@gmail.com',
+    fromEmail: 'noreply@resend.dev',
     notificationsEnabled: true,
     customBadWords: '',
   });
@@ -112,6 +113,23 @@ export default function NotificationSettings() {
             placeholder="director@example.com"
             className="w-full bg-dark-900 border border-gray-600 text-white px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-gold-400 resize-none"
             rows="3"
+          />
+        </div>
+
+        {/* From Email Address */}
+        <div>
+          <label className="block text-gray-300 text-sm font-medium mb-2">
+            Email &quot;From&quot; Address
+          </label>
+          <p className="text-gray-500 text-xs mb-3">
+            Email address that spam alerts will come from. Use a verified domain (e.g., noreply@yourdomain.com) to send to any email address.
+          </p>
+          <input
+            type="email"
+            value={settings.fromEmail}
+            onChange={(e) => setSettings({ ...settings, fromEmail: e.target.value })}
+            placeholder="noreply@yourdomain.com"
+            className="w-full bg-dark-900 border border-gray-600 text-white px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-gold-400"
           />
         </div>
 

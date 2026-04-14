@@ -120,8 +120,9 @@ exports.checkMemoryForSpam = functions.firestore
       // Send email to all directors
       try {
         console.log(`📧 Attempting to send email via Resend...`);
+        const fromEmail = settings.fromEmail || 'noreply@resend.dev';
         const emailResult = await resend.emails.send({
-          from: 'noreply@resend.dev',
+          from: fromEmail,
           to: emailList,
           subject: `⚠️ Suspicious Memory on ${obituaryName}`,
           html: emailHtml,
