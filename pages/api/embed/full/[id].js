@@ -198,7 +198,7 @@ body{font-family:Georgia,serif;background:transparent}
     ${o.survivors ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Survived By</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.survivors)}</div>` : ''}
     ${o.predeceased ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Preceded in Death By</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.predeceased)}</div>` : ''}
     ${servicesHtml}
-    <div class="rb-fp-share-section"><div style="text-align:center;margin-bottom:12px"><div class="rb-fp-section-title">Share This Tribute</div></div><div class="rb-fp-share-buttons"><button class="rb-fp-share-btn" data-platform="facebook" title="Share on Facebook">Facebook</button><button class="rb-fp-share-btn" data-platform="twitter" title="Share on Twitter">Twitter</button><button class="rb-fp-share-btn" data-platform="email" title="Share via Email">Email</button><button class="rb-fp-share-btn" data-platform="sms" title="Share via Text">Text</button><button class="rb-fp-share-btn" data-platform="copy" title="Copy Link">Copy Link</button></div></div>
+    <div class="rb-fp-share-section"><div style="text-align:center;margin-bottom:12px"><div class="rb-fp-section-title">Share This Tribute</div></div><div class="rb-fp-share-buttons"><button class="rb-fp-share-btn" data-platform="facebook" title="Share on Facebook">Facebook</button><button class="rb-fp-share-btn" data-platform="twitter" title="Share on Twitter">Twitter</button><button class="rb-fp-share-btn" data-platform="email" title="Share via Email">Email</button><button class="rb-fp-share-btn" data-platform="copy" title="Copy Link">Copy Link</button></div></div>
   </div>
   <div class="rb-fp-mw">
     <div class="rb-fp-mw-title">Memory Wall</div>
@@ -478,25 +478,40 @@ body{font-family:Georgia,serif;background:transparent}
       facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(baseUrl),
       twitter: 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(baseUrl) + '&text=' + encodeURIComponent(memoryText),
       email: 'mailto:?subject=' + encodeURIComponent('Obituary: ' + personName) + '&body=' + encodeURIComponent(fullText),
-      sms: 'sms:?body=' + encodeURIComponent(fullText),
       copy: null
     };
 
     if (platform === 'copy') {
+      var copied = false;
+      // Try modern clipboard API first
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(baseUrl).then(function() {
           alert('Link copied to clipboard!');
+          copied = true;
         }).catch(function() {
-          alert('Could not copy to clipboard');
+          // Fallback if clipboard API fails
+          copyUsingExecCommand();
         });
       } else {
+        copyUsingExecCommand();
+      }
+      function copyUsingExecCommand() {
+        if (copied) return;
         var ta = document.createElement('textarea');
         ta.value = baseUrl;
+        ta.style.position = 'fixed';
+        ta.style.left = '-999999px';
+        ta.style.top = '-999999px';
         document.body.appendChild(ta);
+        ta.focus();
         ta.select();
         try {
-          document.execCommand('copy');
-          alert('Link copied to clipboard!');
+          var success = document.execCommand('copy');
+          if (success) {
+            alert('Link copied to clipboard!');
+          } else {
+            throw new Error('execCommand failed');
+          }
         } catch(e) {
           alert('Could not copy to clipboard');
         }
