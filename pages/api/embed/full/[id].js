@@ -560,21 +560,23 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
   }
 
   /* ---- Send Obituary Data to Parent Page ---- */
-  console.log('CHECKING FOR OBIT DATA:', window.__obituaryData);
-  if (window.__obituaryData) {
-    console.log('SENDING OBIT DATA:', window.__obituaryData);
-    try {
-      parent.postMessage({
-        type: 'rbObituaryData',
-        payload: window.__obituaryData
-      }, '*');
-      console.log('POSTMESSAGE SENT');
-    } catch(e) {
-      console.error('POSTMESSAGE ERROR:', e);
+  window.addEventListener('load', function() {
+    console.log('WINDOW LOAD EVENT FIRED');
+    if (window.__obituaryData) {
+      console.log('SENDING OBIT DATA:', window.__obituaryData);
+      try {
+        parent.postMessage({
+          type: 'rbObituaryData',
+          payload: window.__obituaryData
+        }, 'https://didericksenmemorialfuneralservices.com');
+        console.log('POSTMESSAGE SENT');
+      } catch(e) {
+        console.error('POSTMESSAGE ERROR:', e);
+      }
+    } else {
+      console.warn('NO OBITUARY DATA TO SEND');
     }
-  } else {
-    console.warn('NO OBITUARY DATA TO SEND');
-  }
+  });
 })();
 </script>
 </body>
