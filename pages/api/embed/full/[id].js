@@ -214,6 +214,7 @@ body{font-family:Georgia,serif;background:transparent}
 <script>
 // Embed obituary data for postMessage to parent page
 window.__obituaryData = ${JSON.stringify(obituaryDataForPostMessage)};
+console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
 </script>
 <div class="rb-fp">
   <div class="rb-fp-header">
@@ -559,13 +560,20 @@ window.__obituaryData = ${JSON.stringify(obituaryDataForPostMessage)};
   }
 
   /* ---- Send Obituary Data to Parent Page ---- */
+  console.log('CHECKING FOR OBIT DATA:', window.__obituaryData);
   if (window.__obituaryData) {
+    console.log('SENDING OBIT DATA:', window.__obituaryData);
     try {
       parent.postMessage({
         type: 'rbObituaryData',
         payload: window.__obituaryData
       }, '*');
-    } catch(e) {}
+      console.log('POSTMESSAGE SENT');
+    } catch(e) {
+      console.error('POSTMESSAGE ERROR:', e);
+    }
+  } else {
+    console.warn('NO OBITUARY DATA TO SEND');
   }
 })();
 </script>
