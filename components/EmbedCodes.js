@@ -529,7 +529,7 @@ export default function EmbedCodes({ obituary }) {
       title: 'Full Page Code',
       tag: `Complete obituary for ${obituary.fullName}`,
       where: 'Paste into a Custom HTML element on the dedicated obituary page. Shows the full obituary with photo carousel, bio, services, and live Memory Wall.',
-      code: fullPageCode(obituary.id, obituary.fullName, notifyUrl),
+      code: fullPageCode(obituary.id, obituary.fullName, obituary.url),
     },
   ];
 
