@@ -171,6 +171,17 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-memory-share{background:rgba(217,119,6,.1);border:none;color:#d97706;cursor:pointer;padding:6px 8px;transition:all .2s;font-size:.85rem;border-radius:6px;font-weight:600;border:1px solid rgba(217,119,6,.2)}
 .rb-fp-memory-share:hover{background:rgba(217,119,6,.2);border-color:#d97706;transform:scale(1.08)}
 .rb-fp-memory-share svg{width:16px;height:16px}
+@media (max-width:640px){
+.rb-fp-header{padding:24px 20px}
+.rb-fp-name{font-size:1.8rem}
+.rb-fp-body{padding:20px}
+.rb-fp-section-header{flex-wrap:wrap;justify-content:center;white-space:normal;margin:20px 0 16px}
+.rb-fp-section-line{display:none}
+.rb-fp-section-title{font-size:1.1rem;margin-bottom:8px;width:100%}
+.rb-fp-services{grid-template-columns:1fr}
+.rb-fp-share-section{margin:0;padding:24px 20px;background:#000}
+.rb-fp-share-buttons{justify-content:center}
+.rb-fp-share-btn{min-width:90px;padding:12px 16px;font-size:.8rem}}
 </style>
 </head>
 <body>
