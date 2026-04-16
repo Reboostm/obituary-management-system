@@ -1,0 +1,66 @@
+{
+  "leads": [
+    {
+      "businessName": "Tooele Plumbing Co",
+      "niche": "plumber",
+      "location": {"county": "Tooele", "city": "Tooele", "zip": "84074", "address": "123 Main St"},
+      "contact": {"name": "John Smith"},
+      "phone": "4355551234",
+      "email": "john@tooeleplumbing.com",
+      "website": "https://tooeleplumbing.com",
+      "businessType": "owner",
+      "emailVerified": true,
+      "phoneVerified": true,
+      "qualityScore": 85
+    },
+    {
+      "businessName": "Mountain HVAC Services",
+      "niche": "hvac",
+      "location": {"county": "Tooele", "city": "Grantsville", "zip": "84029", "address": "456 Oak Ave"},
+      "contact": {"name": "Mike Johnson"},
+      "phone": "4355552345",
+      "email": "info@mountainhvac.com",
+      "website": "https://mountainhvac.com",
+      "businessType": "owner",
+      "emailVerified": true,
+      "phoneVerified": true,
+      "qualityScore": 88
+    },
+    {
+      "businessName": "Professional Electricians",
+      "niche": "electrician",
+      "location": {"county": "Tooele", "city": "Tooele", "zip": "84074", "address": "789 Elm St"},
+      "contact": {"name": "Robert Davis"},
+      "phone": "4355553456",
+      "email": "robert@proelectricians.com",
+      "website": "https://proelectricians.com",
+      "businessType": "owner",
+      "emailVerified": true,
+      "qualityScore": 82
+    },
+    {
+      "businessName": "Utah Roofing Solutions",
+      "niche": "roofing",
+      "location": {"county": "Tooele", "city": "Stockton", "zip": "84071", "address": "321 Pine Rd"},
+      "contact": {"name": "Chris Wilson"},
+      "phone": "4355554567",
+      "email": "chris@utahroofing.com",
+      "website": "https://utahroofing.com",
+      "businessType": "owner",
+      "emailVerified": true,
+      "qualityScore": 79
+    },
+    {
+      "businessName": "Tooele Pest Control",
+      "niche": "pest_control",
+      "location": {"county": "Tooele", "city": "Tooele", "zip": "84074", "address": "555 Birch Ln"},
+      "contact": {"name": "Lisa Anderson"},
+      "phone": "4355555678",
+      "email": "lisa@tooelepest.com",
+      "website": "https://tooelepest.com",
+      "businessType": "owner",
+      "emailVerified": true,
+      "qualityScore": 76
+    }
+  ]
+}
