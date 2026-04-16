@@ -4,10 +4,15 @@ import { Lead, Niche } from '@/types/lead';
 import SearchFilters from '@/components/SearchFilters';
 import LeadsList from '@/components/LeadsList';
 import DashboardStats from '@/components/DashboardStats';
+import { ProtectedRoute } from '@/lib/protected-route';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
 
 const NICHES: Niche[] = ['plumber', 'hvac', 'electrician', 'contractor', 'roofing', 'landscaping', 'pest_control', 'cleaning', 'realtor', 'dentist'];
 
-export default function Dashboard() {
+function DashboardContent() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [county, setCounty] = useState('Tooele');
   const [niches, setNiches] = useState<Niche[]>(['plumber']);
   const [minScore, setMinScore] = useState(60);
@@ -15,6 +20,11 @@ export default function Dashboard() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<any>(null);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
 
   useEffect(() => {
     loadStats();
@@ -85,8 +95,21 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4">
-          <h1 className="text-3xl font-bold">Lead Generation Platform</h1>
-          <p className="text-sm text-gray-600">Search, enrich, and push qualified leads to GHL</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold">ReBoost Leads</h1>
+              <p className="text-sm text-gray-600">Search, enrich, and push qualified leads to GHL</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Signed in as <strong>{user?.email}</strong></p>
+              <button
+                onClick={handleLogout}
+                className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-medium"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -144,5 +167,13 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   );
 }

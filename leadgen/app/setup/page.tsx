@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
+import { ProtectedRoute } from '@/lib/protected-route';
 
-export default function Setup() {
+function SetupContent() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const importData = async () => {
@@ -78,5 +79,13 @@ export default function Setup() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Setup() {
+  return (
+    <ProtectedRoute>
+      <SetupContent />
+    </ProtectedRoute>
   );
 }
