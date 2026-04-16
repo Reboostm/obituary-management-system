@@ -52,16 +52,16 @@ export async function getLeadStats(county: string) {
   try {
     const q = query(collection(db, LEADS_COLLECTION), where('location.county', '==', county));
     const snap = await getDocs(q);
-    const stats = { total: snap.size, avgScore: 0, byNiche: {}, emailVerified: 0 };
+    const stats: { total: number; avgScore: number; byNiche: Record<string, number>; emailVerified: number } = { total: snap.size, avgScore: 0, byNiche: {}, emailVerified: 0 };
     let totalScore = 0;
-    
+
     snap.forEach(doc => {
       const data = doc.data();
       totalScore += data.qualityScore || 0;
       if (data.emailVerified) stats.emailVerified += 1;
       stats.byNiche[data.niche] = (stats.byNiche[data.niche] || 0) + 1;
     });
-    
+
     stats.avgScore = snap.size > 0 ? totalScore / snap.size : 0;
     return stats;
   } catch (error) {
