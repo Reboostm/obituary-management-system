@@ -3,7 +3,7 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAP1wZXbFZdfjukcQzKXA3t1GYVZlUA',
+  apiKey: 'AIzaSyAPwZXbFZxIfJukcQKozKXA3t1GYVZlUA',
   authDomain: 'reboost-leads.firebaseapp.com',
   projectId: 'reboost-leads',
   storageBucket: 'reboost-leads.firebasestorage.app',
