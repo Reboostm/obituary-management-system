@@ -3,12 +3,12 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: 'AIzaSyAP1wZXbFZdfjukcQzKXA3t1GYVZlUA',
+  authDomain: 'reboost-leads.firebaseapp.com',
+  projectId: 'reboost-leads',
+  storageBucket: 'reboost-leads.firebasestorage.app',
+  messagingSenderId: '960696544955',
+  appId: '1:960696544955:web:c2af89154050709860f839e',
 };
 
 const app = initializeApp(firebaseConfig);
