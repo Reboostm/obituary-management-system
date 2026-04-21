@@ -54,7 +54,7 @@ function render(){
         var o=d.data();
         var img=o.images&&o.images[0]
           ?'<img class="rb-hw-img" src="'+rbEsc(o.images[0])+'" alt="'+rbEsc(o.fullName)+'">'
-          :'<div class="rb-hw-placeholder">&#10013;</div>';
+          :'<div class="rb-hw-placeholder">&#9671;</div>';
         var dates=[o.birthDate,o.deathDate].filter(Boolean).join(' \u2013 ');
         var href=o.url||'#';
         return '<a href="'+rbEsc(href)+'" target="_top" class="rb-hw-card">'+img+'<div class="rb-hw-content"><div><div class="rb-hw-name">'+rbEsc(o.fullName)+'</div><div class="rb-hw-dates">'+rbEsc(dates)+'</div></div><button class="rb-hw-btn">Read Obituary</button></div></a>';
@@ -115,7 +115,7 @@ function render(o){
   if(!root)return;
   var img=o.images&&o.images[0]
     ?'<img class="rb-lp-img" src="'+rbEsc(o.images[0])+'" alt="'+rbEsc(o.fullName)+'">'
-    :'<div class="rb-lp-placeholder">&#10013;</div>';
+    :'<div class="rb-lp-placeholder">&#9671;</div>';
   var dates=[o.birthDate,o.deathDate].filter(Boolean).join(' \u2013 ');
   var excerpt=o.bio?rbEsc(o.bio.slice(0,200))+(o.bio.length>200?'...':''):'';
   var href=o.url||'#';
@@ -423,7 +423,7 @@ function renderPage(o,mems){
 
   var inner=document.getElementById(INNER_ID);
   if(!inner)return;
-  var headerContent='<div class="rb-fp-deco"><div class="rb-fp-deco-line"></div><span style="color:#f59e0b;font-size:1.2rem">&#10013;</span><div class="rb-fp-deco-line"></div></div>'
+  var headerContent='<div class="rb-fp-deco"><div class="rb-fp-deco-line"></div><span style="color:#f59e0b;font-size:1.2rem">&#9671;</span><div class="rb-fp-deco-line"></div></div>'
     +'<h1 class="rb-fp-name">'+rbEsc(o.fullName)+'</h1>'
     +(dates?'<div class="rb-fp-dates">'+rbEsc(dates)+'</div>':'')
     +(o.location?'<div class="rb-fp-loc">'+rbEsc(o.location)+'</div>':'');

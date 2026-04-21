@@ -218,7 +218,7 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
 </script>
 <div class="rb-fp">
   <div class="rb-fp-header">
-    <div class="rb-fp-deco"><div class="rb-fp-deco-line"></div><span style="color:#f59e0b;font-size:1.2rem">&#10013;</span><div class="rb-fp-deco-line"></div></div>
+    <div class="rb-fp-deco"><div class="rb-fp-deco-line"></div><span style="color:#d4af7f;font-size:.9rem;letter-spacing:.2em">◆</span><div class="rb-fp-deco-line"></div></div>
     <h1 class="rb-fp-name">${esc(o.fullName)}</h1>
     ${dates ? `<div class="rb-fp-dates">${esc(dates)}</div>` : ''}
     ${o.location ? `<div class="rb-fp-loc">${esc(o.location)}</div>` : ''}

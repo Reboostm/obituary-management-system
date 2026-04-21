@@ -12,7 +12,10 @@
       "mcp__Claude_in_Chrome__computer",
       "mcp__Claude_in_Chrome__read_page",
       "mcp__Claude_in_Chrome__find",
-      "mcp__Claude_in_Chrome__form_input"
+      "mcp__Claude_in_Chrome__form_input",
+      "Bash(sed -i \"s|<span style=\\\\\"color:#f59e0b;font-size:1.2rem\\\\\">&#10013;<\\\\/span>|<span style=\\\\\"color:#d4af7f;font-size:.9rem;letter-spacing:.2em\\\\\">◆</span>|g\" \"pages/api/embed/full/[id].js\")",
+      "Bash(sed -i 's/&#10013;/\\\\&#9671;/g' components/EmbedCodes.js)",
+      "Bash(sed -i \"s|<span style='color:#f59e0b;font-size:1.2rem'>&#10013;<\\\\/span>|<span style='color:#d4af7f;font-size:.9rem;letter-spacing:.2em'>◆</span>|g\" components/EmbedCodes.js)"
     ]
   }
 }

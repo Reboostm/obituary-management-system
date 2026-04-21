@@ -91,7 +91,7 @@ export default function EmbedHome({ obituaries, error }) {
                   {o.images && o.images[0] ? (
                     <img className="rb-hw-img" src={o.images[0]} alt={o.fullName} />
                   ) : (
-                    <div className="rb-hw-placeholder">&#10013;</div>
+                    <div className="rb-hw-placeholder">&#9671;</div>
                   )}
                   <div className="rb-hw-content">
                     <div>

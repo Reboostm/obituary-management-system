@@ -137,13 +137,13 @@ export default function Dashboard() {
         <title>Dashboard — ReBoost Marketing Obituary System</title>
       </Head>
 
-      <div className="min-h-screen bg-dark-950 text-white">
+      <div className="min-h-screen text-white" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,175,127,0.07) 0%, #080808 55%)' }}>
         {/* Top Nav */}
         <nav className="sticky top-0 z-40 px-6 py-4"
           style={{ background: 'rgba(10,10,10,0.97)', borderBottom: '1px solid rgba(212,175,127,0.15)', backdropFilter: 'blur(8px)' }}>
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-gold-500 text-lg" style={{ fontFamily: 'Georgia, serif' }}>✝</span>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#d4af7f' }} />
               <div>
                 <div className="text-gold-400 text-xs font-bold uppercase tracking-widest leading-tight">ReBoost Marketing</div>
                 <div className="text-gray-500 text-xs leading-snug">Obituary Management System</div>
@@ -207,6 +207,9 @@ export default function Dashboard() {
                 </button>
               </div>
 
+              {/* Gold divider */}
+              <div className="h-px mb-8" style={{ background: 'linear-gradient(90deg, rgba(212,175,127,0.6), transparent)' }} />
+
               {/* Search Bar */}
               <div className="mb-6 relative">
                 <input
@@ -214,7 +217,10 @@ export default function Dashboard() {
                   placeholder="Search obituaries by name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-dark-800 border border-gray-700 text-white px-4 py-3 rounded-lg text-sm focus:outline-none focus:border-gold-400 transition"
+                  className="w-full text-white px-4 py-3 rounded-xl text-sm focus:outline-none transition"
+                  style={{ background: 'rgba(18,18,18,0.8)', border: '1px solid rgba(212,175,127,0.15)' }}
+                  onFocus={e => e.target.style.borderColor='rgba(212,175,127,0.45)'}
+                  onBlur={e => e.target.style.borderColor='rgba(212,175,127,0.15)'}
                 />
                 {searchQuery && (
                   <button

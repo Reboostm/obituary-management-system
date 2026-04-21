@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     const img = o.images && o.images[0]
       ? `<img class="rb-lp-img" src="${esc(o.images[0])}" alt="${esc(o.fullName)}">`
-      : '<div class="rb-lp-placeholder">&#10013;</div>';
+      : '<div class="rb-lp-placeholder">&#9671;</div>';
     const dates = [o.birthDate, o.deathDate].filter(Boolean).join(' – ');
     const excerpt = o.bio ? esc(o.bio.slice(0, 200)) + (o.bio.length > 200 ? '...' : '') : '';
 

@@ -36,11 +36,11 @@ export default function LoginPage() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            {/* Cross icon */}
+            {/* Gold divider accent */}
             <div className="flex items-center justify-center mb-5">
-              <div className="w-px h-8 bg-gradient-to-b from-transparent to-gold-500 opacity-60" />
-              <span className="text-gold-500 text-3xl mx-3" style={{ fontFamily: 'Georgia, serif' }}>✝</span>
-              <div className="w-px h-8 bg-gradient-to-b from-transparent to-gold-500 opacity-60" />
+              <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, transparent, #d4af7f)' }} />
+              <div className="w-2 h-2 rounded-full mx-3" style={{ background: '#d4af7f' }} />
+              <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, #d4af7f, transparent)' }} />
             </div>
             <p className="text-gold-400 text-xs font-bold uppercase tracking-widest mb-2">ReBoost Marketing</p>
             <h1 className="text-3xl font-serif text-white tracking-wide mb-1">Obituary Management</h1>

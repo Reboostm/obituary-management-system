@@ -40,7 +40,7 @@ export default async function handler(req, res) {
           const href = esc(o.url || '#');
           const img = (o.images && o.images[0])
             ? '<img class="card-img" src="' + esc(o.images[0]) + '" alt="' + esc(o.fullName) + '">'
-            : '<div class="card-placeholder">&#10013;</div>';
+            : '<div class="card-placeholder">&#9671;</div>';
           const locationHtml = o.location ? '<div class="card-location">' + esc(o.location) + '</div>' : '';
           const contentHtml = '<div class="card-content">'
             + '<div class="card-name">' + esc(o.fullName) + '</div>'

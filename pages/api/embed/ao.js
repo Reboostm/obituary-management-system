@@ -103,7 +103,7 @@ export default async function handler(req, res) {
       var href = o.url || '#';
       var imgHtml = o.images && o.images[0]
         ? '<img class="rb-ao-card-img" src="' + esc(o.images[0]) + '" alt="' + esc(o.fullName) + '">'
-        : '<div class="rb-ao-card-placeholder">&#10013;</div>';
+        : '<div class="rb-ao-card-placeholder">&#9671;</div>';
       return [
         '<a href="' + esc(href) + '" target="_top" class="rb-ao-card">',
           '<div class="rb-ao-card-content">',
