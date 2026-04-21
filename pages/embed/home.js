@@ -65,11 +65,11 @@ export default function EmbedHome({ obituaries, error }) {
           .rb-hw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); grid-auto-rows: max-content; gap: 24px; width: 100%; height: auto; }
           .rb-hw-card { background: #0a0a0a; border: 1px solid #d4af7f; border-radius: 12px; overflow: hidden; transition: all .3s ease; text-decoration: none; color: inherit; display: flex; flex-direction: column; cursor: pointer; }
           .rb-hw-card:hover { border-color: #e8c99a; box-shadow: 0 4px 20px rgba(212, 175, 127, 0.35); transform: translateY(-2px); }
-          .rb-hw-img { width: 100%; height: 210px; object-fit: contain; object-position: center center; display: block; background: #111; flex-shrink: 0; }
-          .rb-hw-placeholder { width: 100%; height: 210px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #d4af7f; flex-shrink: 0; }
-          .rb-hw-content { padding: 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
-          .rb-hw-name { color: #d4af7f; font-size: 1.3rem; font-weight: 600; margin-bottom: 6px; line-height: 1.3; word-break: break-word; }
-          .rb-hw-dates { color: #d1d5db; font-size: 0.95rem; margin-bottom: 16px; }
+          .rb-hw-img { width: 100%; height: 280px; object-fit: contain; object-position: center center; display: block; background: #111; flex-shrink: 0; }
+          .rb-hw-placeholder { width: 100%; height: 280px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #d4af7f; flex-shrink: 0; }
+          .rb-hw-content { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
+          .rb-hw-name { color: #d4af7f; font-size: 1.3rem; font-weight: 600; margin-bottom: 4px; line-height: 1.3; word-break: break-word; }
+          .rb-hw-dates { color: #d1d5db; font-size: 0.95rem; margin-bottom: 12px; }
           .rb-hw-btn { background: transparent; color: #d4af7f; border: 1px solid #d4af7f; border-radius: 6px; padding: 12px 16px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: auto; transition: all .2s; font-family: inherit; width: 100%; letter-spacing: .03em; }
           .rb-hw-btn:hover { background: #d4af7f; color: #000; }
           .rb-hw-empty { color: #6b7280; font-size: .9rem; text-align: center; padding: 32px; }
