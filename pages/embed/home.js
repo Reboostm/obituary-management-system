@@ -67,7 +67,7 @@ export default function EmbedHome({ obituaries, error }) {
           .rb-hw-card:hover { border-color: #e8c99a; box-shadow: 0 4px 20px rgba(212, 175, 127, 0.35); transform: translateY(-2px); }
           .rb-hw-img { width: 100%; height: 320px; object-fit: contain; object-position: center center; display: block; background: #111; flex-shrink: 0; }
           .rb-hw-placeholder { width: 100%; height: 320px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #d4af7f; flex-shrink: 0; }
-          .rb-hw-content { padding: 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
+          .rb-hw-content { padding: 16px; display: flex; flex-direction: column; justify-content: flex-start; gap: 8px; }
           .rb-hw-name { color: #d4af7f; font-size: 1.4rem; font-weight: 600; margin-bottom: 8px; line-height: 1.3; word-break: break-word; }
           .rb-hw-dates { color: #d1d5db; font-size: 1rem; margin-bottom: 24px; }
           .rb-hw-btn { background: transparent; color: #d4af7f; border: 1px solid #d4af7f; border-radius: 6px; padding: 12px 16px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: auto; transition: all .2s; font-family: inherit; width: 100%; letter-spacing: .03em; }
