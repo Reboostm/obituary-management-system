@@ -42,8 +42,8 @@ export default function LoginPage() {
               <div className="w-2 h-2 rounded-full mx-3" style={{ background: '#d4af7f' }} />
               <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, #d4af7f, transparent)' }} />
             </div>
-            <h1 className="font-bold uppercase tracking-widest mb-1" style={{ fontSize: '2.2rem', color: '#d4af7f', letterSpacing: '0.12em' }}>ReBoost Marketing</h1>
-            <p className="text-gray-300 font-serif text-lg tracking-wide mb-1">Obituary Management</p>
+            <h1 className="font-bold uppercase mb-1" style={{ fontSize: '1.6rem', color: '#d4af7f', letterSpacing: '0.15em' }}>ReBoost Marketing</h1>
+            <p className="text-3xl font-serif text-white tracking-wide mb-1">Obituary Management</p>
             <p className="text-gray-500 text-sm">Admin Portal</p>
           </div>
 
