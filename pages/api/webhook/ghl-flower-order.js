@@ -79,7 +79,7 @@ export default async function handler(req, res) {
     const serviceLocation = primaryService.location || '';
 
     // Get director email (hardcoded for now, can be made configurable)
-    const DIRECTOR_EMAIL = 'jr@didericksenmemorial.com';
+    const DIRECTOR_EMAIL = 'marketingreboost@gmail.com';
 
     // Send email to director
     try {
