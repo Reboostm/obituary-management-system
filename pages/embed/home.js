@@ -58,10 +58,10 @@ export default function EmbedHome({ obituaries, error }) {
     <html>
       <head>
         <style dangerouslySetInnerHTML={{ __html: `
-          html, body { margin: 0; padding: 0; height: 100%; width: 100%; }
+          html, body { margin: 0; padding: 0; width: 100%; }
           * { box-sizing: border-box; margin: 0; padding: 0; }
-          body { font-family: Georgia, serif; background: transparent; width: 100%; height: auto; }
-          .rb-hw { padding: 24px; width: 100%; height: auto; min-height: 100vh; }
+          body { font-family: Georgia, serif; background: transparent; width: 100%; }
+          .rb-hw { padding: 24px; width: 100%; }
           .rb-hw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); grid-auto-rows: auto; gap: 24px; width: 100%; height: auto; }
           .rb-hw-card { background: #0a0a0a; border: 1px solid #d4af7f; border-radius: 12px; overflow: hidden; transition: all .3s ease; text-decoration: none; color: inherit; display: flex; flex-direction: column; cursor: pointer; }
           .rb-hw-card:hover { border-color: #e8c99a; box-shadow: 0 4px 20px rgba(212, 175, 127, 0.35); transform: translateY(-2px); }
