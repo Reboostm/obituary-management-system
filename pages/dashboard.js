@@ -139,12 +139,14 @@ export default function Dashboard() {
 
       <div className="min-h-screen bg-dark-950 text-white">
         {/* Top Nav */}
-        <nav className="bg-dark-800 border-b border-gray-700 px-6 py-4 sticky top-0 z-40">
+        <nav className="sticky top-0 z-40 px-6 py-4"
+          style={{ background: 'rgba(10,10,10,0.97)', borderBottom: '1px solid rgba(212,175,127,0.15)', backdropFilter: 'blur(8px)' }}>
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <span className="text-gold-500 text-lg" style={{ fontFamily: 'Georgia, serif' }}>✝</span>
               <div>
-                <div className="text-gold-400 text-sm font-bold uppercase tracking-wider leading-tight">ReBoost Marketing</div>
-                <div className="text-gray-400 text-xs leading-snug">Obituary Management System</div>
+                <div className="text-gold-400 text-xs font-bold uppercase tracking-widest leading-tight">ReBoost Marketing</div>
+                <div className="text-gray-500 text-xs leading-snug">Obituary Management System</div>
               </div>
             </div>
 
@@ -230,13 +232,14 @@ export default function Dashboard() {
               {/* Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {[
-                  { label: 'Total Records', value: counts.total, color: 'text-white' },
-                  { label: 'Published', value: counts.published, color: 'text-green-400' },
-                  { label: 'Draft', value: counts.draft, color: 'text-yellow-400' },
-                ].map(({ label, value, color }) => (
-                  <div key={label} className="bg-dark-800 border border-gray-700 rounded-xl px-5 py-4">
-                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-1">{label}</p>
-                    <p className={`text-3xl font-light ${color}`}>{value}</p>
+                  { label: 'Total Records', value: counts.total, color: 'text-white', accent: 'rgba(212,175,127,0.15)' },
+                  { label: 'Published', value: counts.published, color: 'text-green-400', accent: 'rgba(52,211,153,0.08)' },
+                  { label: 'Draft', value: counts.draft, color: 'text-yellow-400', accent: 'rgba(251,191,36,0.08)' },
+                ].map(({ label, value, color, accent }) => (
+                  <div key={label} className="rounded-xl px-5 py-5"
+                    style={{ background: accent, border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">{label}</p>
+                    <p className={`text-4xl font-light ${color}`}>{value}</p>
                   </div>
                 ))}
               </div>

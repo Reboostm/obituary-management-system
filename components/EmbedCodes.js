@@ -28,7 +28,7 @@ function homePageCode() {
 .rb-hw-img{width:100%;height:320px;object-fit:contain;object-position:center center;display:block;background:#111;flex-shrink:0}
 .rb-hw-placeholder{width:100%;height:320px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#d4af7f;flex-shrink:0}
 .rb-hw-content{padding:16px;flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0}
-.rb-hw-name{color:#d4af7f;font-size:1.4rem;margin-bottom:8px;font-weight:600;line-height:1.3}
+.rb-hw-name{color:#d4af7f;font-size:1.1rem;margin-bottom:8px;font-weight:600;line-height:1.3}
 .rb-hw-dates{color:#d1d5db;font-size:1rem;margin-bottom:24px}
 .rb-hw-btn{background:transparent;color:#d4af7f;border:1px solid #d4af7f;border-radius:6px;padding:10px 16px;font-size:1.1rem;font-weight:600;cursor:pointer;margin-top:auto;transition:all .2s;font-family:inherit;width:100%;letter-spacing:.03em}
 .rb-hw-btn:hover{background:#d4af7f;color:#000}
