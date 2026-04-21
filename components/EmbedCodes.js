@@ -73,6 +73,13 @@ function tryRender(n){
 }
 if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(function(){tryRender(15);},100);}
 else{document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){tryRender(15);},100);});}
+function rbNotifyHeight(){
+  var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,document.body.offsetHeight,document.documentElement.offsetHeight);
+  try{window.parent.postMessage({rbHeight:h,height:h},'*');}catch(e){}
+}
+setTimeout(rbNotifyHeight,500);
+setTimeout(rbNotifyHeight,1500);
+window.addEventListener('resize',rbNotifyHeight);
 })();
 </script>`;
 }
