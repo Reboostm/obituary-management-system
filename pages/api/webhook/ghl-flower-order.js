@@ -19,23 +19,91 @@ export default async function handler(req, res) {
   try {
     const orderData = req.body;
 
-    // Extract key data from GHL order
-    // GHL webhook typically includes: contact info, order details, custom fields
-    const deceasedName = orderData.deceasedName || orderData.contact?.first_name || '';
+    console.log('🔍 WEBHOOK RECEIVED:', JSON.stringify(orderData, null, 2));
+
+    // ===============================
+    // EXTRACT DATA FROM SPECIAL MESSAGE
+    // ===============================
+    let deceasedName = orderData.deceasedName || orderData.contact?.first_name || '';
+    let serviceDate = '';
+    let serviceTime = '';
+    let serviceLocation = '';
+    let flowerOrder = '';
+    let obituaryUrl = '';
+
+    // Parse special message/notes if present
+    const specialMessage = orderData.specialInstructions || orderData.notes || orderData.orderNotes || '';
+    if (specialMessage && specialMessage.includes('FLOWERS FOR:')) {
+      console.log('📝 PARSING SPECIAL MESSAGE');
+
+      // Extract deceased name
+      const deceasedMatch = specialMessage.match(/FLOWERS FOR:\s*(.+?)(?:\n|Service:)/);
+      if (deceasedMatch) {
+        deceasedName = deceasedMatch[1].trim();
+        console.log('👤 Deceased:', deceasedName);
+      }
+
+      // Extract service date/time
+      const serviceMatch = specialMessage.match(/Service:\s*(.+?)(?:\n|Location:)/);
+      if (serviceMatch) {
+        const serviceStr = serviceMatch[1].trim();
+        console.log('📅 Service:', serviceStr);
+        // Try to parse date/time
+        if (serviceStr.includes('at')) {
+          const parts = serviceStr.split('at');
+          serviceDate = parts[0].trim();
+          serviceTime = parts[1]?.trim() || '';
+        } else {
+          serviceDate = serviceStr;
+        }
+      }
+
+      // Extract location
+      const locationMatch = specialMessage.match(/Location:\s*(.+?)(?:\n|Obituary:)/);
+      if (locationMatch) {
+        serviceLocation = locationMatch[1].trim();
+        console.log('📍 Location:', serviceLocation);
+      }
+
+      // Extract obituary URL
+      const obituaryMatch = specialMessage.match(/Obituary:\s*(.+?)(?:\n|FLOWER ORDER:|$)/);
+      if (obituaryMatch) {
+        obituaryUrl = obituaryMatch[1].trim();
+        console.log('🔗 Obituary URL:', obituaryUrl);
+      }
+
+      // Extract flower order
+      const flowerMatch = specialMessage.match(/FLOWER ORDER:([\s\S]*?)$/);
+      if (flowerMatch) {
+        flowerOrder = flowerMatch[1].trim();
+        console.log('💐 Flower Order:', flowerOrder);
+      }
+    }
+
+    // Fallback: get customer info from contact
     const customerName = orderData.contact?.first_name && orderData.contact?.last_name
       ? `${orderData.contact.first_name} ${orderData.contact.last_name}`
-      : orderData.customerName || 'Unknown';
+      : orderData.customerName || 'Anonymous';
     const customerEmail = orderData.contact?.email || orderData.customerEmail || '';
     const customerPhone = orderData.contact?.phone || orderData.customerPhone || '';
-    const flowerName = orderData.productName || orderData.flowerName || 'Flower Arrangement';
+    const orderTotal = orderData.orderTotal || orderData.total || '';
     const flowerImage = orderData.productImage || orderData.flowerImage || null;
     const deliveryAddress = orderData.deliveryAddress || '';
-    const orderNotes = orderData.specialInstructions || orderData.notes || '';
-    const orderTotal = orderData.orderTotal || orderData.total || '';
 
     if (!deceasedName) {
+      console.error('❌ No deceased name found');
       return res.status(400).json({ error: 'Deceased name required' });
     }
+
+    console.log('✅ DATA EXTRACTED:', {
+      deceasedName,
+      serviceDate,
+      serviceTime,
+      serviceLocation,
+      customerName,
+      customerEmail,
+      flowerOrder
+    });
 
     // Find the obituary by deceased name
     let obituaryId = null;
@@ -72,14 +140,21 @@ export default async function handler(req, res) {
       }
     }
 
-    // Get service info from obituary
-    const primaryService = obituary.services?.find(s => s.type === 'Funeral Service') || obituary.services?.[0] || {};
-    const serviceDate = primaryService.date || '';
-    const serviceTime = primaryService.time || '';
-    const serviceLocation = primaryService.location || '';
+    // Get floral shop info if selected
+    // If we found the obituary, use service info from there
+    // Otherwise use parsed data from special message
+    if (!serviceDate && obituary.services) {
+      const primaryService = obituary.services.find(s => s.type === 'Funeral Service') || obituary.services[0] || {};
+      if (primaryService.date) serviceDate = primaryService.date;
+      if (primaryService.time) serviceTime = primaryService.time;
+      if (primaryService.location) serviceLocation = primaryService.location;
+    }
 
-    // Get director email (hardcoded for now, can be made configurable)
+    // Get director email
     const DIRECTOR_EMAIL = 'marketingreboost@gmail.com';
+
+    // Format flower order for email
+    const flowerNameForEmail = flowerOrder || 'Flower Arrangement';
 
     // Send email to director
     try {
@@ -87,15 +162,14 @@ export default async function handler(req, res) {
         directorEmail: DIRECTOR_EMAIL,
         deceasedName,
         customerName,
-        flowerName,
+        flowerName: flowerNameForEmail,
         serviceDate,
         serviceTime,
         serviceLocation,
       });
-      console.log('Director email sent');
+      console.log('✉️ Director email sent to:', DIRECTOR_EMAIL);
     } catch (err) {
       console.error('Failed to send director email:', err);
-      // Don't fail the webhook if director email fails
     }
 
     // Send email to floral shop if selected
@@ -108,20 +182,21 @@ export default async function handler(req, res) {
           customerName,
           customerEmail,
           customerPhone,
-          flowerName,
+          flowerName: flowerNameForEmail,
           flowerImage,
           serviceDate,
           serviceTime,
           serviceLocation,
           deliveryAddress,
-          orderNotes,
+          orderNotes: flowerOrder,
           orderTotal,
         });
-        console.log('Floral shop email sent');
+        console.log('✉️ Floral shop email sent to:', floralShop.email);
       } catch (err) {
         console.error('Failed to send floral shop email:', err);
-        // Don't fail the webhook if floral shop email fails
       }
+    } else {
+      console.warn('⚠️ No floral shop configured for this obituary');
     }
 
     // Create memory entry for flower order
@@ -130,33 +205,39 @@ export default async function handler(req, res) {
         obituaryId,
         name: customerName,
         relationship: 'Flower Order',
-        memoryText: `Sent ${flowerName} as a tribute to ${deceasedName}`,
+        memoryText: `Sent ${flowerNameForEmail} as a tribute to ${deceasedName}`,
         createdAt: new Date(),
         published: true,
         isFlowerOrder: true, // Flag to identify as flower order
-        flowerName,
+        flowerName: flowerNameForEmail,
         flowerImage,
         orderTotal,
       };
 
       const memoryRef = collection(db, 'memories');
-      await addDoc(memoryRef, memoryEntry);
-      console.log('Memory entry created');
+      const docRef = await addDoc(memoryRef, memoryEntry);
+      console.log('💐 Memory entry created:', docRef.id);
     } catch (err) {
       console.error('Failed to create memory entry:', err);
-      // Don't fail the webhook if memory creation fails
     }
 
     // Return success
     return res.status(200).json({
       success: true,
       obituaryId,
+      deceased: deceasedName,
+      customer: customerName,
       floralShopNotified: !!floralShop,
-      message: 'Flower order processed successfully',
+      emailsSent: {
+        director: true,
+        floralShop: !!floralShop,
+      },
+      memoryCreated: true,
+      message: `✅ Flower order for ${deceasedName} processed successfully`,
     });
 
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('❌ Webhook error:', error);
     return res.status(500).json({
       error: 'Failed to process order',
       message: error.message,
