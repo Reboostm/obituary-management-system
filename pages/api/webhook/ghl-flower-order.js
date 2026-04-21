@@ -18,8 +18,11 @@ export default async function handler(req, res) {
 
   try {
     const orderData = req.body;
+    const sendEmails = orderData.sendEmails !== false; // Default true, but can be overridden
+    const isPaymentConfirmed = orderData.paymentConfirmed || sendEmails; // If from GHL, payment is confirmed
 
-    console.log('🔍 WEBHOOK RECEIVED:', JSON.stringify(orderData, null, 2));
+    console.log('🔍 WEBHOOK RECEIVED - Send Emails:', sendEmails, '| Payment Confirmed:', isPaymentConfirmed);
+    console.log('📦 DATA:', JSON.stringify(orderData, null, 2));
 
     // ===============================
     // EXTRACT DATA FROM SPECIAL MESSAGE
@@ -156,50 +159,60 @@ export default async function handler(req, res) {
     // Format flower order for email
     const flowerNameForEmail = flowerOrder || 'Flower Arrangement';
 
-    // Send email to director
-    try {
-      await sendDirectorFlowerOrderNotification({
-        directorEmail: DIRECTOR_EMAIL,
-        deceasedName,
-        customerName,
-        flowerName: flowerNameForEmail,
-        serviceDate,
-        serviceTime,
-        serviceLocation,
-      });
-      console.log('✉️ Director email sent to:', DIRECTOR_EMAIL);
-    } catch (err) {
-      console.error('Failed to send director email:', err);
-    }
-
-    // Send email to floral shop if selected
-    if (floralShop && floralShop.email) {
+    // ===============================
+    // SEND EMAILS ONLY IF PAYMENT CONFIRMED
+    // ===============================
+    if (sendEmails && isPaymentConfirmed) {
+      // Send email to director
       try {
-        await sendFloralShopOrderEmail({
-          floralShopEmail: floralShop.email,
-          floralShopName: floralShop.name,
+        await sendDirectorFlowerOrderNotification({
+          directorEmail: DIRECTOR_EMAIL,
           deceasedName,
           customerName,
-          customerEmail,
-          customerPhone,
           flowerName: flowerNameForEmail,
-          flowerImage,
           serviceDate,
           serviceTime,
           serviceLocation,
-          deliveryAddress,
-          orderNotes: flowerOrder,
-          orderTotal,
         });
-        console.log('✉️ Floral shop email sent to:', floralShop.email);
+        console.log('✉️ Director email sent to:', DIRECTOR_EMAIL);
       } catch (err) {
-        console.error('Failed to send floral shop email:', err);
+        console.error('Failed to send director email:', err);
+      }
+
+      // Send email to floral shop if selected
+      if (floralShop && floralShop.email) {
+        try {
+          await sendFloralShopOrderEmail({
+            floralShopEmail: floralShop.email,
+            floralShopName: floralShop.name,
+            deceasedName,
+            customerName,
+            customerEmail,
+            customerPhone,
+            flowerName: flowerNameForEmail,
+            flowerImage,
+            serviceDate,
+            serviceTime,
+            serviceLocation,
+            deliveryAddress,
+            orderNotes: flowerOrder,
+            orderTotal,
+          });
+          console.log('✉️ Floral shop email sent to:', floralShop.email);
+        } catch (err) {
+          console.error('Failed to send floral shop email:', err);
+        }
+      } else {
+        console.warn('⚠️ No floral shop configured for this obituary');
       }
     } else {
-      console.warn('⚠️ No floral shop configured for this obituary');
+      console.log('⏳ Emails NOT sent yet - waiting for payment confirmation');
     }
 
-    // Create memory entry for flower order
+    // ===============================
+    // CREATE MEMORY ENTRY
+    // Published only if payment confirmed
+    // ===============================
     try {
       const memoryEntry = {
         obituaryId,
@@ -207,16 +220,19 @@ export default async function handler(req, res) {
         relationship: 'Flower Order',
         memoryText: `Sent ${flowerNameForEmail} as a tribute to ${deceasedName}`,
         createdAt: new Date(),
-        published: true,
-        isFlowerOrder: true, // Flag to identify as flower order
+        published: isPaymentConfirmed, // Only publish if payment confirmed
+        isFlowerOrder: true,
         flowerName: flowerNameForEmail,
         flowerImage,
         orderTotal,
+        paymentConfirmed: isPaymentConfirmed, // Track payment status
       };
 
       const memoryRef = collection(db, 'memories');
       const docRef = await addDoc(memoryRef, memoryEntry);
-      console.log('💐 Memory entry created:', docRef.id);
+
+      const status = isPaymentConfirmed ? '✅ published' : '⏳ draft (waiting for payment)';
+      console.log('💐 Memory entry created:', docRef.id, '|', status);
     } catch (err) {
       console.error('Failed to create memory entry:', err);
     }
