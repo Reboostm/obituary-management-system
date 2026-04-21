@@ -135,22 +135,56 @@ export default function MemoryWall({ obituaryId, obituaryName }) {
         </div>
       ) : (
         <div className="space-y-4">
-          {memories.map((memory) => (
+          {memories.map((memory) => {
+            const isFlowerOrder = memory.isFlowerOrder;
+
+            return (
             <div
               key={memory.id}
-              className={`bg-dark-800 border rounded-xl p-6 transition ${
-                memory.published ? 'border-gray-700' : 'border-yellow-800 border-opacity-50 opacity-60'
+              className={`border rounded-xl p-6 transition ${
+                isFlowerOrder
+                  ? 'bg-amber-50 border-amber-200'
+                  : memory.published
+                  ? 'bg-dark-800 border-gray-700'
+                  : 'bg-dark-800 border-yellow-800 border-opacity-50 opacity-60'
               }`}
             >
+              {/* Flower Order Image - Top */}
+              {isFlowerOrder && memory.flowerImage && (
+                <div className="mb-4 -m-6 mb-4 relative">
+                  <img
+                    src={memory.flowerImage}
+                    alt={memory.flowerName}
+                    className="w-full h-48 object-cover rounded-t-xl"
+                  />
+                </div>
+              )}
+
               {/* Memory Header - Name & Relationship */}
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1 min-w-0">
-                  <p className="text-gold-400 font-medium text-base mb-2">{memory.name || 'Anonymous'}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    {isFlowerOrder && <span className="text-2xl">💐</span>}
+                    <p className={`font-medium text-base mb-0 ${
+                      isFlowerOrder ? 'text-amber-900' : 'text-gold-400'
+                    }`}>
+                      {memory.name || 'Anonymous'}
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs px-3 py-1.5 bg-gold-500 bg-opacity-20 border border-gold-500 border-opacity-40 text-gold-300 rounded-full">
+                    <span className={`text-xs px-3 py-1.5 rounded-full border ${
+                      isFlowerOrder
+                        ? 'bg-amber-100 border-amber-300 text-amber-900'
+                        : 'bg-gold-500 bg-opacity-20 border-gold-500 border-opacity-40 text-gold-300'
+                    }`}>
                       {memory.relationship || 'Other'}
                     </span>
-                    {!memory.published && (
+                    {isFlowerOrder && memory.flowerName && (
+                      <span className="text-xs px-3 py-1.5 bg-amber-100 border border-amber-300 text-amber-900 rounded-full">
+                        {memory.flowerName}
+                      </span>
+                    )}
+                    {!memory.published && !isFlowerOrder && (
                       <span className="text-xs px-3 py-1.5 bg-yellow-900 bg-opacity-50 border border-yellow-700 border-opacity-40 text-yellow-400 rounded-full">
                         Hidden from public
                       </span>
@@ -159,44 +193,50 @@ export default function MemoryWall({ obituaryId, obituaryName }) {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleTogglePublished(memory)}
-                    disabled={actionLoading === memory.id + '_toggle'}
-                    title={memory.published ? 'Hide from public' : 'Show on public page'}
-                    className={`p-2 rounded-lg text-sm transition ${
-                      memory.published
-                        ? 'text-gray-400 hover:text-yellow-400 hover:bg-yellow-900 hover:bg-opacity-20'
-                        : 'text-yellow-400 hover:text-white hover:bg-gray-700'
-                    }`}
-                  >
-                    {actionLoading === memory.id + '_toggle' ? (
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    ) : memory.published ? (
+                {!isFlowerOrder && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleTogglePublished(memory)}
+                      disabled={actionLoading === memory.id + '_toggle'}
+                      title={memory.published ? 'Hide from public' : 'Show on public page'}
+                      className={`p-2 rounded-lg text-sm transition ${
+                        memory.published
+                          ? 'text-gray-400 hover:text-yellow-400 hover:bg-yellow-900 hover:bg-opacity-20'
+                          : 'text-yellow-400 hover:text-white hover:bg-gray-700'
+                      }`}
+                    >
+                      {actionLoading === memory.id + '_toggle' ? (
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      ) : memory.published ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(memory.id)}
+                      title="Delete memory"
+                      className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-20 rounded-lg transition"
+                    >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
-                    ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete(memory.id)}
-                    title="Delete memory"
-                    className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-20 rounded-lg transition"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Memory Text */}
-              <p className="text-gray-300 text-sm leading-relaxed mb-4">{memory.memoryText}</p>
+              <p className={`text-sm leading-relaxed mb-4 ${
+                isFlowerOrder ? 'text-amber-900' : 'text-gray-300'
+              }`}>
+                {memory.memoryText}
+              </p>
 
               {/* Photos - Auto-rotating carousel */}
               {memory.photos && memory.photos.length > 0 && (
@@ -234,9 +274,14 @@ export default function MemoryWall({ obituaryId, obituaryName }) {
               )}
 
               {/* Footer */}
-              <p className="text-gray-500 text-xs">{formatDate(memory.createdAt)}</p>
+              <p className={`text-xs ${
+                isFlowerOrder ? 'text-amber-700' : 'text-gray-500'
+              }`}>
+                {formatDate(memory.createdAt)}
+              </p>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
