@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { addObituary, updateObituary } from '../lib/obituaries';
 import ImageUploader from './ImageUploader';
 import ServiceFields from './ServiceFields';
+import FloralShopSelector from './FloralShopSelector';
 import EmbedCodes from './EmbedCodes';
 
 const EMPTY_SERVICE = { date: '', time: '', type: 'Funeral Service', location: '', virtualLink: '' };
@@ -18,6 +19,7 @@ const EMPTY_FORM = {
   images: [],
   status: 'draft',
   url: '', // Will be auto-generated from fullName
+  selectedFloralShopId: null, // For flower order fulfillment
 };
 
 // Helper: Convert name to URL slug
@@ -49,6 +51,7 @@ export default function ObituaryForm({ initial, onSave, onCancel }) {
           images: initial.images || [],
           status: initial.status || 'draft',
           url: initial.url || `${BASE_URL}${slugifyName(initial.fullName)}`,
+          selectedFloralShopId: initial.selectedFloralShopId || null,
         }
       : { ...EMPTY_FORM }
   );
@@ -227,6 +230,15 @@ export default function ObituaryForm({ initial, onSave, onCancel }) {
           <ServiceFields
             services={form.services}
             onChange={(services) => setForm((prev) => ({ ...prev, services }))}
+          />
+        </section>
+
+        {/* Floral Shop Selection */}
+        <section className="bg-dark-800 border border-gray-700 rounded-xl p-6">
+          <h2 className="text-sm font-medium text-gold-400 uppercase tracking-widest mb-5">Flower Order Fulfillment</h2>
+          <FloralShopSelector
+            selectedShopId={form.selectedFloralShopId}
+            onChange={(shopId) => setForm((prev) => ({ ...prev, selectedFloralShopId: shopId }))}
           />
         </section>
 

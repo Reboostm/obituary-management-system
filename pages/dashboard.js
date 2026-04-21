@@ -6,6 +6,7 @@ import ObituaryPreview from '../components/ObituaryPreview';
 import ObituaryList from '../components/ObituaryList';
 import MemoryWall from '../components/MemoryWall';
 import NotificationSettings from '../components/NotificationSettings';
+import FloralShopsManager from '../components/FloralShopsManager';
 import { getObituaries, deleteObituary } from '../lib/obituaries';
 
 const STATUS_COUNTS = (obituaries) => ({
@@ -18,7 +19,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [obituaries, setObituaries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('list'); // 'list' | 'form' | 'preview' | 'memories' | 'settings'
+  const [view, setView] = useState('list'); // 'list' | 'form' | 'preview' | 'memories' | 'settings' | 'floralShops'
   const [editing, setEditing] = useState(null);
   const [previewing, setPreviewing] = useState(null);
   const [memoriesObit, setMemoriesObit] = useState(null);
@@ -162,6 +163,16 @@ export default function Dashboard() {
                   Dashboard
                 </button>
               )}
+              <button
+                onClick={() => { setView('floralShops'); pushViewState('floralShops'); }}
+                className="text-gray-400 hover:text-gold-400 text-sm transition flex items-center gap-1"
+                title="Manage Floral Shops"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Floral Shops
+              </button>
               <button
                 onClick={() => { setView('settings'); pushViewState('settings'); }}
                 className="text-gray-400 hover:text-gold-400 text-sm transition flex items-center gap-1"
@@ -331,6 +342,11 @@ export default function Dashboard() {
 
               <MemoryWall obituaryId={memoriesObit.id} obituaryName={memoriesObit.fullName} />
             </div>
+          )}
+
+          {/* ── FLORAL SHOPS VIEW ─────────────────────────────────────────── */}
+          {view === 'floralShops' && (
+            <FloralShopsManager />
           )}
 
           {/* ── SETTINGS VIEW ─────────────────────────────────────────── */}
