@@ -210,7 +210,16 @@ export default function ObituaryPreview({ obituary, onEdit, onBack }) {
                           Join Virtual Service →
                         </a>
                       ) : (
-                        svc.location && <p className="text-gray-600 text-sm italic mt-0.5">{svc.location}</p>
+                        svc.location && (
+                          <a
+                            href={`https://www.google.com/maps/search/${encodeURIComponent(svc.location)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block text-amber-700 hover:text-amber-900 text-sm italic mt-0.5 underline"
+                          >
+                            📍 {svc.location}
+                          </a>
+                        )
                       )}
                     </div>
                   );

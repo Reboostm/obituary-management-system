@@ -105,7 +105,7 @@ export default async function handler(req, res) {
         const isVirtualViewing = s.type === 'Virtual Viewing';
         const locationOrLink = isVirtualViewing
           ? (s.virtualLink ? `<a href="${esc(s.virtualLink)}" target="_blank" rel="noopener noreferrer" class="rb-fp-virtual-link">Join Virtual Service</a>` : '')
-          : (s.location ? `<div class="rb-fp-service-loc">${esc(s.location)}</div>` : '');
+          : (s.location ? `<a href="https://www.google.com/maps/search/${encodeURIComponent(s.location)}" target="_blank" rel="noopener noreferrer" class="rb-fp-service-loc" style="text-decoration:underline;cursor:pointer">📍 ${esc(s.location)}</a>` : '');
         return `<div class="rb-fp-service-card${isVirtualViewing ? ' rb-fp-service-card-virtual' : ''}"><div class="rb-fp-service-type">${esc(s.type)}</div><div class="rb-fp-service-datetime">${s.date ? esc(s.date) : ''}${s.time ? ' at ' + esc(s.time) : ''}</div>${locationOrLink}</div>`;
       }).join('');
       servicesHtml = `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Memorial Services</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-services">${sCards}</div>`;

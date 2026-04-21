@@ -2,8 +2,12 @@ const SERVICE_TYPES = [
   'Funeral Service',
   'Wake',
   'Visitation',
+  'Viewing',
   'Graveside Service',
   'Memorial Service',
+  'Celebration of Life',
+  'Funeral Mass',
+  'Rosary',
   'Virtual Viewing',
 ];
 
