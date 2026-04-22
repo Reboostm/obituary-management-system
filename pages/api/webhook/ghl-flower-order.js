@@ -129,12 +129,17 @@ export default async function handler(req, res) {
     // =========================================================
     console.log('💳 GHL Payment confirmed — looking up pending order from Firebase');
 
-    const customerName  = orderData.contact?.first_name && orderData.contact?.last_name
-      ? `${orderData.contact.first_name} ${orderData.contact.last_name}`
-      : orderData.customerName || 'A caring friend';
-    const customerEmail = orderData.contact?.email || orderData.customerEmail || '';
+    // GHL sends camelCase (firstName/lastName) — handle both formats + custom data field
+    const customerName =
+      orderData.customerName                                           // custom data field {{contact.name}}
+      || orderData.contact?.name                                       // full name field
+      || (orderData.contact?.firstName && orderData.contact?.lastName
+          ? `${orderData.contact.firstName} ${orderData.contact.lastName}` : null)
+      || (orderData.contact?.first_name && orderData.contact?.last_name
+          ? `${orderData.contact.first_name} ${orderData.contact.last_name}` : null)
+      || 'A caring friend';
+    const customerEmail = orderData.customerEmail || orderData.contact?.email || '';
     const orderTotal    = orderData.orderTotal || orderData.total || '';
-    // Optional: product name from GHL for better matching
     const productName   = orderData.productName || orderData.product_name || '';
 
     console.log('👤 Customer:', customerName, '|', customerEmail);
