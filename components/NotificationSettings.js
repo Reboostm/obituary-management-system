@@ -10,8 +10,8 @@ const DEFAULT_BAD_WORDS = [
 export default function NotificationSettings() {
   const [settings, setSettings] = useState({
     resendApiKey: '',
-    directorEmails: 'justinmhomeloans@gmail.com',
-    fromEmail: 'noreply@resend.dev',
+    directorEmails: 'marketingreboost@gmail.com',
+    fromEmail: 'noreply@didericksenmemorialfuneralservices.com',
     notificationsEnabled: true,
     customBadWords: '',
   });
@@ -42,10 +42,6 @@ export default function NotificationSettings() {
   };
 
   const handleSave = async () => {
-    if (!settings.resendApiKey.trim()) {
-      setMessage('❌ Resend API key is required');
-      return;
-    }
     if (!settings.directorEmails.trim()) {
       setMessage('❌ At least one director email is required');
       return;
@@ -80,7 +76,7 @@ export default function NotificationSettings() {
             Resend API Key
           </label>
           <p className="text-gray-500 text-xs mb-3">
-            Get your API key from <a href="https://resend.com" target="_blank" rel="noopener noreferrer" className="text-gold-400 hover:text-gold-300">resend.com</a>
+            Get your API key from <a href="https://resend.com" target="_blank" rel="noopener noreferrer" className="text-gold-400 hover:text-gold-300">resend.com</a>. Leave blank to use the <code>RESEND_API_KEY</code> env var.
           </p>
           <div className="flex gap-2">
             <input
@@ -105,7 +101,7 @@ export default function NotificationSettings() {
             Director Emails
           </label>
           <p className="text-gray-500 text-xs mb-3">
-            For multiple emails, separate with commas (e.g., email1@example.com, email2@example.com)
+            Used for both <strong>flower order notifications</strong> and <strong>spammy memory alerts</strong>. For multiple emails, separate with commas (e.g., director@example.com, manager@example.com)
           </p>
           <textarea
             value={settings.directorEmails}
@@ -122,13 +118,13 @@ export default function NotificationSettings() {
             Email &quot;From&quot; Address
           </label>
           <p className="text-gray-500 text-xs mb-3">
-            Email address that spam alerts will come from. Use a verified domain (e.g., noreply@yourdomain.com) to send to any email address.
+            Email address that all notifications (flower orders + spam alerts) will be sent from. Must be a verified domain in Resend.
           </p>
           <input
             type="email"
             value={settings.fromEmail}
             onChange={(e) => setSettings({ ...settings, fromEmail: e.target.value })}
-            placeholder="noreply@yourdomain.com"
+            placeholder="noreply@didericksenmemorialfuneralservices.com"
             className="w-full bg-dark-900 border border-gray-600 text-white px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-gold-400"
           />
         </div>
@@ -143,7 +139,7 @@ export default function NotificationSettings() {
               className="w-4 h-4 rounded accent-gold-500"
             />
             <span className="text-gray-300 text-sm font-medium">
-              Enable email notifications for bad/spammy memories
+              Enable email alerts for bad/spammy memories (flower order emails always send)
             </span>
           </label>
         </div>
@@ -189,10 +185,10 @@ export default function NotificationSettings() {
         <div className="bg-dark-900 border border-gray-700 rounded-lg p-4 text-gray-400 text-sm">
           <p className="font-medium text-gray-300 mb-2">How it works:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>When a new memory is posted, it&apos;s scanned for bad keywords</li>
-            <li>If flagged, an email is sent to all listed director emails</li>
-            <li>Director can review and delete/hide from the memory wall</li>
-            <li>API key is stored securely in Firebase</li>
+            <li><strong>Flower orders:</strong> When a customer pays for flowers, all director emails get a notification with order details</li>
+            <li><strong>Spam alerts:</strong> When a memory contains flagged keywords, all director emails get an alert with a dashboard link</li>
+            <li>From-address must be a verified domain in your Resend account</li>
+            <li>API key is stored in Firebase; falls back to <code>RESEND_API_KEY</code> env var if blank</li>
           </ul>
         </div>
       </div>

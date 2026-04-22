@@ -17,7 +17,7 @@ import {
   doc, getDoc, collection, query, where, getDocs,
   addDoc, updateDoc, orderBy, limit,
 } from 'firebase/firestore';
-import { sendDirectorFlowerOrderNotification, sendFloralShopOrderEmail } from '../../../lib/resend';
+import { sendDirectorFlowerOrderNotification, sendFloralShopOrderEmail, loadNotificationSettings } from '../../../lib/resend';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -141,6 +141,7 @@ export default async function handler(req, res) {
     const customerEmail = orderData.customerEmail || orderData.contact?.email || '';
     const orderTotal    = orderData.orderTotal || orderData.total || '';
     const productName   = orderData.productName || orderData.product_name || '';
+    const productImage  = orderData.productImage || orderData.product_image || orderData.flowerImage || '';
 
     console.log('👤 Customer:', customerName, '|', customerEmail);
     console.log('🌸 Product from GHL:', productName || '(not sent)');
@@ -216,23 +217,34 @@ export default async function handler(req, res) {
       } catch (err) { console.error('Error fetching floral shop:', err); }
     }
 
-    const DIRECTOR_EMAIL = 'marketingreboost@gmail.com';
+    // ── Load notification settings (director emails, from address, API key) ─
+    const settings = await loadNotificationSettings();
+    console.log('⚙️ Settings loaded — directors:', settings.directorEmails.join(', '), '| from:', settings.fromEmail);
 
-    // ── Send director email ─────────────────────────────────────────────────
-    try {
-      await sendDirectorFlowerOrderNotification({
-        directorEmail: DIRECTOR_EMAIL,
-        deceasedName,
-        customerName,
-        flowerName,
-        serviceDate,
-        serviceTime: '',
-        serviceLocation,
-        pendingPayment: false,
-      });
-      console.log('✉️ Director email sent to:', DIRECTOR_EMAIL);
-    } catch (err) {
-      console.error('❌ Director email FAILED. Error details:', JSON.stringify(err?.message || err));
+    const flowerImage = pendingOrder.flowerImage || null;
+
+    // ── Send director email(s) ──────────────────────────────────────────────
+    for (const directorEmail of settings.directorEmails) {
+      try {
+        await sendDirectorFlowerOrderNotification({
+          directorEmail,
+          deceasedName,
+          customerName,
+          customerEmail,
+          flowerName,
+          flowerImage,
+          serviceDate,
+          serviceTime: '',
+          serviceLocation,
+          orderTotal,
+          pendingPayment: false,
+          from: settings.fromEmail,
+          apiKey: settings.resendApiKey,
+        });
+        console.log('✉️ Director email sent to:', directorEmail);
+      } catch (err) {
+        console.error('❌ Director email FAILED to', directorEmail, '— Error:', JSON.stringify(err?.message || err));
+      }
     }
 
     // ── Send floral shop email ──────────────────────────────────────────────
@@ -246,7 +258,7 @@ export default async function handler(req, res) {
           customerEmail,
           customerPhone: orderData.contact?.phone || '',
           flowerName,
-          flowerImage: null,
+          flowerImage,
           serviceDate,
           serviceTime: '',
           serviceLocation,
@@ -254,6 +266,8 @@ export default async function handler(req, res) {
           orderNotes: flowerName,
           orderTotal,
           pendingPayment: false,
+          from: settings.fromEmail,
+          apiKey: settings.resendApiKey,
         });
         console.log('✉️ Floral shop email sent to:', floralShop.email);
       } catch (err) {
@@ -265,13 +279,17 @@ export default async function handler(req, res) {
 
     // ── Publish the memory ──────────────────────────────────────────────────
     try {
-      await updateDoc(doc(db, 'memories', pendingOrder.id), {
+      const updateFields = {
         published: true,
         paymentConfirmed: true,
         orderTotal,
         name: customerName,
         customerEmail,
-      });
+      };
+      // Only overwrite flowerName/Image if GHL sent newer values
+      if (productName) updateFields.flowerName = productName;
+      if (productImage) updateFields.flowerImage = productImage;
+      await updateDoc(doc(db, 'memories', pendingOrder.id), updateFields);
       console.log('✅ Memory published:', pendingOrder.id);
     } catch (err) {
       console.error('❌ Memory publish FAILED:', JSON.stringify(err?.message || err));

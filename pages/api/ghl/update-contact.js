@@ -9,8 +9,8 @@
 import { db } from '../../../lib/firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 
-const GHL_API_KEY = 'pit-0a04d0a8-b634-4b2c-8f96-9e8ebcaad2dc';
-const GHL_LOCATION_ID = '8Z8DYXwo6cwCrx91szgq';
+const GHL_API_KEY = process.env.GHL_API_KEY || 'pit-0a04d0a8-b634-4b2c-8f96-9e8ebcaad2dc';
+const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID || '8Z8DYXwo6cwCrx91szgq';
 const GHL_API_BASE = 'https://services.leadconnectorhq.com';
 
 export default async function handler(req, res) {
