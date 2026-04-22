@@ -146,56 +146,44 @@ export default async function handler(req, res) {
     console.log('🌸 Product from GHL:', productName || '(not sent)');
 
     // ── Find the pending draft in Firebase ──────────────────────────────────
+    // Use a single where() to avoid composite index requirements.
+    // Filter isFlowerOrder + matching in JavaScript.
     let pendingOrder = null;
     try {
-      // Try matching by flower name first (most accurate)
-      if (productName) {
-        const q = query(
-          collection(db, 'memories'),
-          where('paymentConfirmed', '==', false),
-          where('isFlowerOrder', '==', true),
-          where('flowerName', '==', productName)
-        );
-        const snap = await getDocs(q);
-        if (snap.docs.length > 0) {
-          pendingOrder = { id: snap.docs[0].id, ...snap.docs[0].data() };
-          console.log('✅ Matched by product name:', pendingOrder.deceasedName);
-        }
+      const allQ = query(
+        collection(db, 'memories'),
+        where('paymentConfirmed', '==', false)
+      );
+      const allSnap = await getDocs(allQ);
+      const pending = allSnap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(d => d.isFlowerOrder === true);
+
+      console.log('🔍 Pending flower orders found:', pending.length);
+      pending.forEach(p => console.log('  -', p.deceasedName, '| email:', p.customerEmail, '| flower:', p.flowerName));
+
+      // 1. Match by customer email (most reliable — entered at confirm time)
+      if (customerEmail) {
+        pendingOrder = pending.find(d => d.customerEmail === customerEmail) || null;
+        if (pendingOrder) console.log('✅ Matched by customer email:', pendingOrder.deceasedName);
       }
 
-      // Fallback: match by customer email stored at confirm time
-      if (!pendingOrder && customerEmail) {
-        const q = query(
-          collection(db, 'memories'),
-          where('paymentConfirmed', '==', false),
-          where('isFlowerOrder', '==', true),
-          where('customerEmail', '==', customerEmail)
-        );
-        const snap = await getDocs(q);
-        if (snap.docs.length > 0) {
-          pendingOrder = { id: snap.docs[0].id, ...snap.docs[0].data() };
-          console.log('✅ Matched by customer email:', pendingOrder.deceasedName);
-        }
+      // 2. Match by product/flower name
+      if (!pendingOrder && productName) {
+        pendingOrder = pending.find(d => d.flowerName === productName) || null;
+        if (pendingOrder) console.log('✅ Matched by product name:', pendingOrder.deceasedName);
       }
 
-      // Last resort: most recent pending order
-      if (!pendingOrder) {
-        const q = query(
-          collection(db, 'memories'),
-          where('paymentConfirmed', '==', false),
-          where('isFlowerOrder', '==', true)
-        );
-        const snap = await getDocs(q);
-        if (snap.docs.length > 0) {
-          // Sort client-side by createdAt to get most recent
-          const sorted = snap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .sort((a, b) => (b.createdAt?.toDate?.() || 0) - (a.createdAt?.toDate?.() || 0));
-          pendingOrder = sorted[0];
-          console.log('✅ Matched by most recent pending order:', pendingOrder.deceasedName);
-        }
+      // 3. Most recent as last resort
+      if (!pendingOrder && pending.length > 0) {
+        pendingOrder = pending.sort((a, b) => {
+          const ta = a.createdAt?.toDate?.() || new Date(0);
+          const tb = b.createdAt?.toDate?.() || new Date(0);
+          return tb - ta;
+        })[0];
+        console.log('✅ Matched by most recent:', pendingOrder.deceasedName);
       }
-    } catch (err) { console.error('Error finding pending order:', err); }
+    } catch (err) { console.error('❌ Error querying Firebase:', err); }
 
     if (!pendingOrder) {
       console.error('❌ No pending flower order found in Firebase');
@@ -242,8 +230,10 @@ export default async function handler(req, res) {
         serviceLocation,
         pendingPayment: false,
       });
-      console.log('✉️ Director email sent');
-    } catch (err) { console.error('Failed to send director email:', err); }
+      console.log('✉️ Director email sent to:', DIRECTOR_EMAIL);
+    } catch (err) {
+      console.error('❌ Director email FAILED. Error details:', JSON.stringify(err?.message || err));
+    }
 
     // ── Send floral shop email ──────────────────────────────────────────────
     if (floralShop?.email) {
@@ -265,8 +255,12 @@ export default async function handler(req, res) {
           orderTotal,
           pendingPayment: false,
         });
-        console.log('✉️ Floral shop email sent');
-      } catch (err) { console.error('Failed to send floral shop email:', err); }
+        console.log('✉️ Floral shop email sent to:', floralShop.email);
+      } catch (err) {
+        console.error('❌ Floral shop email FAILED. Error details:', JSON.stringify(err?.message || err));
+      }
+    } else {
+      console.warn('⚠️ No floral shop email — floralShop:', floralShop ? floralShop.name : 'NOT FOUND');
     }
 
     // ── Publish the memory ──────────────────────────────────────────────────
@@ -279,7 +273,9 @@ export default async function handler(req, res) {
         customerEmail,
       });
       console.log('✅ Memory published:', pendingOrder.id);
-    } catch (err) { console.error('Failed to publish memory:', err); }
+    } catch (err) {
+      console.error('❌ Memory publish FAILED:', JSON.stringify(err?.message || err));
+    }
 
     return res.status(200).json({
       success: true,
