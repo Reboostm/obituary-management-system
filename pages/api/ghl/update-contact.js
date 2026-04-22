@@ -52,6 +52,7 @@ export default async function handler(req, res) {
     let contactId = null;
     if (customerEmail) {
       try {
+        // Try duplicate search first
         const searchRes = await fetch(
           `${GHL_API_BASE}/contacts/search/duplicate?locationId=${GHL_LOCATION_ID}&email=${encodeURIComponent(customerEmail)}`,
           {
@@ -62,9 +63,34 @@ export default async function handler(req, res) {
           }
         );
         const searchData = await searchRes.json();
+        console.log('🔍 GHL search response:', JSON.stringify(searchData));
+
+        // GHL returns contact directly or in a contacts array
         if (searchData?.contact?.id) {
           contactId = searchData.contact.id;
+        } else if (searchData?.contacts?.[0]?.id) {
+          contactId = searchData.contacts[0].id;
+        }
+
+        if (contactId) {
           console.log('✅ Found GHL contact:', contactId);
+        } else {
+          // Fallback: search by email via contacts search
+          const fallbackRes = await fetch(
+            `${GHL_API_BASE}/contacts/?locationId=${GHL_LOCATION_ID}&email=${encodeURIComponent(customerEmail)}&limit=1`,
+            {
+              headers: {
+                'Authorization': `Bearer ${GHL_API_KEY}`,
+                'Version': '2021-07-28',
+              },
+            }
+          );
+          const fallbackData = await fallbackRes.json();
+          console.log('🔍 GHL fallback search:', JSON.stringify(fallbackData));
+          if (fallbackData?.contacts?.[0]?.id) {
+            contactId = fallbackData.contacts[0].id;
+            console.log('✅ Found GHL contact (fallback):', contactId);
+          }
         }
       } catch (err) {
         console.error('Error searching GHL contact:', err);
@@ -73,9 +99,20 @@ export default async function handler(req, res) {
 
     // ===============================
     // STEP 2: Update GHL contact custom fields
+    // Note: GHL API uses "value" not "field_value"
     // ===============================
     if (contactId) {
       try {
+        const fieldsPayload = {
+          customFields: [
+            { key: 'flower__deceased_name', value: deceasedName },
+            { key: 'flower__service_date', value: serviceDateTime || serviceDate || '' },
+            { key: 'flower__service_location', value: serviceLocation || '' },
+            { key: 'flower__order_details', value: flowerOrder || '' },
+          ],
+        };
+        console.log('📤 Sending to GHL:', JSON.stringify(fieldsPayload));
+
         const updateRes = await fetch(`${GHL_API_BASE}/contacts/${contactId}`, {
           method: 'PUT',
           headers: {
@@ -83,17 +120,14 @@ export default async function handler(req, res) {
             'Version': '2021-07-28',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            customFields: [
-              { key: 'flower__deceased_name', field_value: deceasedName },
-              { key: 'flower__service_date', field_value: serviceDateTime || serviceDate || '' },
-              { key: 'flower__service_location', field_value: serviceLocation || '' },
-              { key: 'flower__order_details', field_value: flowerOrder || '' },
-            ],
-          }),
+          body: JSON.stringify(fieldsPayload),
         });
         const updateData = await updateRes.json();
-        console.log('✅ GHL contact updated with flower data:', updateData?.contact?.id);
+        console.log('✅ GHL update response:', JSON.stringify(updateData));
+
+        if (!updateRes.ok) {
+          console.error('❌ GHL update failed with status:', updateRes.status);
+        }
       } catch (err) {
         console.error('Error updating GHL contact:', err);
       }
