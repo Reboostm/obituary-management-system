@@ -1,13 +1,12 @@
 /**
  * GHL Flower Order Webhook
- * Receives flower orders from GoHighLevel and:
- * 1. Sends email to director (notification)
- * 2. Sends email to selected floral shop (order details)
- * 3. Creates memory entry on obituary Memory Wall
+ * Two paths:
+ * 1. Button click (sendEmails: false) → store pending order, create draft memory, send "pending payment" emails
+ * 2. GHL webhook after payment → find draft memory by deceasedName, publish it
  */
 
 import { db } from '../../../lib/firebase';
-import { doc, getDoc, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, addDoc, updateDoc } from 'firebase/firestore';
 import { sendDirectorFlowerOrderNotification, sendFloralShopOrderEmail } from '../../../lib/resend';
 
 export default async function handler(req, res) {
@@ -22,175 +21,91 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const orderData = req.body;
-    const sendEmails = orderData.sendEmails !== false; // Default true, but can be overridden
-    const isPaymentConfirmed = orderData.paymentConfirmed || sendEmails; // If from GHL, payment is confirmed
+    const isButtonClick = orderData.source === 'button'; // From confirm button
+    const isGHLWebhook = !isButtonClick; // From GHL after payment
 
-    console.log('🔍 WEBHOOK RECEIVED - Send Emails:', sendEmails, '| Payment Confirmed:', isPaymentConfirmed);
+    console.log('🔍 WEBHOOK RECEIVED - Source:', isButtonClick ? 'Button Click' : 'GHL Webhook');
     console.log('📦 DATA:', JSON.stringify(orderData, null, 2));
 
     // ===============================
-    // EXTRACT DATA FROM SPECIAL MESSAGE
+    // PATH 1: BUTTON CLICK
+    // Has all the data, send emails, create draft memory
     // ===============================
-    let deceasedName = orderData.deceasedName || orderData.contact?.first_name || '';
-    let serviceDate = '';
-    let serviceTime = '';
-    let serviceLocation = '';
-    let flowerOrder = '';
-    let obituaryUrl = '';
+    if (isButtonClick) {
+      const deceasedName = orderData.deceasedName || '';
+      const serviceDate = orderData.serviceDate || '';
+      const serviceTime = orderData.serviceTime || '';
+      const serviceDateTime = orderData.serviceDateTime || '';
+      const serviceLocation = orderData.serviceLocation || '';
+      const flowerOrder = orderData.flowerOrder || '';
+      const obituaryUrl = orderData.obituaryUrl || '';
+      const customerName = orderData.customerName || 'A caring friend';
+      const customerEmail = orderData.customerEmail || '';
 
-    // Parse special message/notes if present
-    const specialMessage = orderData.specialInstructions || orderData.notes || orderData.orderNotes || '';
-    if (specialMessage && specialMessage.includes('FLOWERS FOR:')) {
-      console.log('📝 PARSING SPECIAL MESSAGE');
-
-      // Extract deceased name
-      const deceasedMatch = specialMessage.match(/FLOWERS FOR:\s*(.+?)(?:\n|Service:)/);
-      if (deceasedMatch) {
-        deceasedName = deceasedMatch[1].trim();
-        console.log('👤 Deceased:', deceasedName);
+      if (!deceasedName) {
+        return res.status(400).json({ error: 'Deceased name required' });
       }
 
-      // Extract service date/time
-      const serviceMatch = specialMessage.match(/Service:\s*(.+?)(?:\n|Location:)/);
-      if (serviceMatch) {
-        const serviceStr = serviceMatch[1].trim();
-        console.log('📅 Service:', serviceStr);
-        // Try to parse date/time
-        if (serviceStr.includes('at')) {
-          const parts = serviceStr.split('at');
-          serviceDate = parts[0].trim();
-          serviceTime = parts[1]?.trim() || '';
-        } else {
-          serviceDate = serviceStr;
-        }
-      }
-
-      // Extract location
-      const locationMatch = specialMessage.match(/Location:\s*(.+?)(?:\n|Obituary:)/);
-      if (locationMatch) {
-        serviceLocation = locationMatch[1].trim();
-        console.log('📍 Location:', serviceLocation);
-      }
-
-      // Extract obituary URL
-      const obituaryMatch = specialMessage.match(/Obituary:\s*(.+?)(?:\n|FLOWER ORDER:|$)/);
-      if (obituaryMatch) {
-        obituaryUrl = obituaryMatch[1].trim();
-        console.log('🔗 Obituary URL:', obituaryUrl);
-      }
-
-      // Extract flower order
-      const flowerMatch = specialMessage.match(/FLOWER ORDER:([\s\S]*?)$/);
-      if (flowerMatch) {
-        flowerOrder = flowerMatch[1].trim();
-        console.log('💐 Flower Order:', flowerOrder);
-      }
-    }
-
-    // Fallback: get customer info from contact
-    const customerName = orderData.contact?.first_name && orderData.contact?.last_name
-      ? `${orderData.contact.first_name} ${orderData.contact.last_name}`
-      : orderData.customerName || 'Anonymous';
-    const customerEmail = orderData.contact?.email || orderData.customerEmail || '';
-    const customerPhone = orderData.contact?.phone || orderData.customerPhone || '';
-    const orderTotal = orderData.orderTotal || orderData.total || '';
-    const flowerImage = orderData.productImage || orderData.flowerImage || null;
-    const deliveryAddress = orderData.deliveryAddress || '';
-
-    if (!deceasedName) {
-      console.error('❌ No deceased name found');
-      return res.status(400).json({ error: 'Deceased name required' });
-    }
-
-    console.log('✅ DATA EXTRACTED:', {
-      deceasedName,
-      serviceDate,
-      serviceTime,
-      serviceLocation,
-      customerName,
-      customerEmail,
-      flowerOrder
-    });
-
-    // Find the obituary by deceased name
-    let obituaryId = null;
-    let obituary = null;
-    try {
-      const q = query(
-        collection(db, 'obituaries'),
-        where('fullName', '==', deceasedName)
-      );
-      const snapshot = await getDocs(q);
-      if (snapshot.docs.length > 0) {
-        obituary = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-        obituaryId = obituary.id;
-      }
-    } catch (err) {
-      console.error('Error finding obituary:', err);
-    }
-
-    if (!obituaryId) {
-      return res.status(400).json({ error: `Obituary not found for: ${deceasedName}` });
-    }
-
-    // Get floral shop info if selected
-    let floralShop = null;
-    if (obituary.selectedFloralShopId) {
+      // Find obituary
+      let obituaryId = null;
+      let obituary = null;
       try {
-        const shopRef = doc(db, 'floralShops', obituary.selectedFloralShopId);
-        const shopSnap = await getDoc(shopRef);
-        if (shopSnap.exists()) {
-          floralShop = { id: shopSnap.id, ...shopSnap.data() };
+        const q = query(collection(db, 'obituaries'), where('fullName', '==', deceasedName));
+        const snapshot = await getDocs(q);
+        if (snapshot.docs.length > 0) {
+          obituary = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+          obituaryId = obituary.id;
         }
       } catch (err) {
-        console.error('Error fetching floral shop:', err);
+        console.error('Error finding obituary:', err);
       }
-    }
 
-    // Get floral shop info if selected
-    // If we found the obituary, use service info from there
-    // Otherwise use parsed data from special message
-    if (!serviceDate && obituary.services) {
-      const primaryService = obituary.services.find(s => s.type === 'Funeral Service') || obituary.services[0] || {};
-      if (primaryService.date) serviceDate = primaryService.date;
-      if (primaryService.time) serviceTime = primaryService.time;
-      if (primaryService.location) serviceLocation = primaryService.location;
-    }
+      if (!obituaryId) {
+        return res.status(400).json({ error: `Obituary not found for: ${deceasedName}` });
+      }
 
-    // Get director email
-    const DIRECTOR_EMAIL = 'marketingreboost@gmail.com';
+      // Get floral shop
+      let floralShop = null;
+      if (obituary.selectedFloralShopId) {
+        try {
+          const shopRef = doc(db, 'floralShops', obituary.selectedFloralShopId);
+          const shopSnap = await getDoc(shopRef);
+          if (shopSnap.exists()) {
+            floralShop = { id: shopSnap.id, ...shopSnap.data() };
+          }
+        } catch (err) {
+          console.error('Error fetching floral shop:', err);
+        }
+      }
 
-    // Format flower order for email
-    const flowerNameForEmail = flowerOrder || 'Flower Arrangement';
+      const DIRECTOR_EMAIL = 'marketingreboost@gmail.com';
+      const flowerNameForEmail = flowerOrder || 'Flower Arrangement';
+      const serviceDateForEmail = serviceDateTime || serviceDate || '';
 
-    // ===============================
-    // SEND EMAILS ONLY IF PAYMENT CONFIRMED
-    // ===============================
-    if (sendEmails && isPaymentConfirmed) {
-      // Send email to director
+      // Send director email (pending payment notification)
       try {
         await sendDirectorFlowerOrderNotification({
           directorEmail: DIRECTOR_EMAIL,
           deceasedName,
           customerName,
           flowerName: flowerNameForEmail,
-          serviceDate,
+          serviceDate: serviceDateForEmail,
           serviceTime,
           serviceLocation,
+          pendingPayment: true,
         });
-        console.log('✉️ Director email sent to:', DIRECTOR_EMAIL);
+        console.log('✉️ Director email sent (pending payment)');
       } catch (err) {
         console.error('Failed to send director email:', err);
       }
 
-      // Send email to floral shop if selected
+      // Send floral shop email (pending payment)
       if (floralShop && floralShop.email) {
         try {
           await sendFloralShopOrderEmail({
@@ -199,69 +114,110 @@ export default async function handler(req, res) {
             deceasedName,
             customerName,
             customerEmail,
-            customerPhone,
+            customerPhone: '',
             flowerName: flowerNameForEmail,
-            flowerImage,
-            serviceDate,
+            flowerImage: null,
+            serviceDate: serviceDateForEmail,
             serviceTime,
             serviceLocation,
-            deliveryAddress,
-            orderNotes: flowerOrder,
-            orderTotal,
+            deliveryAddress: '',
+            orderNotes: `Flowers: ${flowerOrder}`,
+            orderTotal: '',
+            pendingPayment: true,
           });
-          console.log('✉️ Floral shop email sent to:', floralShop.email);
+          console.log('✉️ Floral shop email sent (pending payment)');
         } catch (err) {
           console.error('Failed to send floral shop email:', err);
         }
-      } else {
-        console.warn('⚠️ No floral shop configured for this obituary');
       }
-    } else {
-      console.log('⏳ Emails NOT sent yet - waiting for payment confirmation');
-    }
 
-    // ===============================
-    // CREATE MEMORY ENTRY
-    // Published only if payment confirmed
-    // ===============================
-    try {
-      const memoryEntry = {
+      // Create DRAFT memory entry (not published until payment confirmed)
+      let memoryId = null;
+      try {
+        const memoryEntry = {
+          obituaryId,
+          name: customerName,
+          relationship: 'Flower Order',
+          memoryText: `Sent ${flowerNameForEmail} as a tribute to ${deceasedName}`,
+          createdAt: new Date(),
+          published: false, // DRAFT until payment confirmed
+          isFlowerOrder: true,
+          flowerName: flowerNameForEmail,
+          flowerImage: null,
+          orderTotal: '',
+          deceasedName, // Store for GHL webhook lookup
+          paymentConfirmed: false,
+        };
+        const memoryRef = collection(db, 'memories');
+        const docRef = await addDoc(memoryRef, memoryEntry);
+        memoryId = docRef.id;
+        console.log('💐 Draft memory created:', memoryId);
+      } catch (err) {
+        console.error('Failed to create draft memory:', err);
+      }
+
+      return res.status(200).json({
+        success: true,
         obituaryId,
-        name: customerName,
-        relationship: 'Flower Order',
-        memoryText: `Sent ${flowerNameForEmail} as a tribute to ${deceasedName}`,
-        createdAt: new Date(),
-        published: isPaymentConfirmed, // Only publish if payment confirmed
-        isFlowerOrder: true,
-        flowerName: flowerNameForEmail,
-        flowerImage,
-        orderTotal,
-        paymentConfirmed: isPaymentConfirmed, // Track payment status
-      };
-
-      const memoryRef = collection(db, 'memories');
-      const docRef = await addDoc(memoryRef, memoryEntry);
-
-      const status = isPaymentConfirmed ? '✅ published' : '⏳ draft (waiting for payment)';
-      console.log('💐 Memory entry created:', docRef.id, '|', status);
-    } catch (err) {
-      console.error('Failed to create memory entry:', err);
+        memoryId,
+        deceased: deceasedName,
+        emailsSent: true,
+        pendingPayment: true,
+        message: `Order for ${deceasedName} stored. Emails sent as pending. Memory will publish after payment.`,
+      });
     }
 
-    // Return success
-    return res.status(200).json({
-      success: true,
-      obituaryId,
-      deceased: deceasedName,
-      customer: customerName,
-      floralShopNotified: !!floralShop,
-      emailsSent: {
-        director: true,
-        floralShop: !!floralShop,
-      },
-      memoryCreated: true,
-      message: `✅ Flower order for ${deceasedName} processed successfully`,
-    });
+    // ===============================
+    // PATH 2: GHL WEBHOOK AFTER PAYMENT
+    // Find draft memory and publish it
+    // ===============================
+    if (isGHLWebhook) {
+      console.log('💳 GHL Payment confirmed webhook received');
+
+      // Get deceased name from special message if available
+      let deceasedName = orderData.deceasedName || '';
+      const specialMessage = orderData.specialInstructions || orderData.notes || orderData.orderNotes || '';
+
+      if (!deceasedName && specialMessage && specialMessage.includes('FLOWERS FOR:')) {
+        const match = specialMessage.match(/FLOWERS FOR:\s*(.+?)(\n|$)/);
+        if (match) deceasedName = match[1].trim();
+      }
+
+      const customerName = orderData.contact?.first_name && orderData.contact?.last_name
+        ? `${orderData.contact.first_name} ${orderData.contact.last_name}`
+        : orderData.customerName || '';
+      const orderTotal = orderData.orderTotal || orderData.total || '';
+
+      if (deceasedName) {
+        // Find and publish the draft memory
+        try {
+          const q = query(
+            collection(db, 'memories'),
+            where('deceasedName', '==', deceasedName),
+            where('paymentConfirmed', '==', false),
+            where('isFlowerOrder', '==', true)
+          );
+          const snapshot = await getDocs(q);
+          if (snapshot.docs.length > 0) {
+            const memoryDoc = snapshot.docs[0];
+            await updateDoc(doc(db, 'memories', memoryDoc.id), {
+              published: true,
+              paymentConfirmed: true,
+              orderTotal,
+              customerName: customerName || memoryDoc.data().name,
+            });
+            console.log('✅ Memory published after payment:', memoryDoc.id);
+          }
+        } catch (err) {
+          console.error('Failed to publish memory:', err);
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Payment confirmed, memory published',
+      });
+    }
 
   } catch (error) {
     console.error('❌ Webhook error:', error);
