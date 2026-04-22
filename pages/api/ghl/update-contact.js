@@ -7,7 +7,7 @@
  */
 
 import { db } from '../../../lib/firebase';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 
 const GHL_API_KEY = 'pit-0a04d0a8-b634-4b2c-8f96-9e8ebcaad2dc';
 const GHL_LOCATION_ID = '8Z8DYXwo6cwCrx91szgq';
@@ -150,29 +150,52 @@ export default async function handler(req, res) {
       console.error('Error finding obituary:', err);
     }
 
+    // ===============================
+    // STEP 3: Create OR update draft memory in Firebase
+    // Check first — avoid duplicates when this is called a second time with email
+    // ===============================
     let memoryId = null;
     if (obituaryId) {
       try {
-        const memoryEntry = {
-          obituaryId,
-          name: 'Flower Order',
-          relationship: 'Flower Order',
-          memoryText: `Sent ${flowerOrder || 'flowers'} as a tribute to ${deceasedName}`,
-          createdAt: new Date(),
-          published: false, // Draft until payment confirmed
-          isFlowerOrder: true,
-          flowerName: flowerOrder || 'Flower Arrangement',
-          flowerImage: null,
-          orderTotal: '',
-          deceasedName,
-          paymentConfirmed: false,
-          customerEmail,
-        };
-        const docRef = await addDoc(collection(db, 'memories'), memoryEntry);
-        memoryId = docRef.id;
-        console.log('💐 Draft memory created:', memoryId);
+        // Check for existing unpublished draft for this obituary
+        const existingQ = query(
+          collection(db, 'memories'),
+          where('obituaryId', '==', obituaryId),
+          where('paymentConfirmed', '==', false),
+          where('isFlowerOrder', '==', true)
+        );
+        const existingSnap = await getDocs(existingQ);
+
+        if (existingSnap.docs.length > 0) {
+          // Draft already exists — just update the email if we now have it
+          memoryId = existingSnap.docs[0].id;
+          if (customerEmail) {
+            await updateDoc(doc(db, 'memories', memoryId), { customerEmail });
+          }
+          console.log('📝 Existing draft memory updated:', memoryId);
+        } else {
+          // No draft yet — create one
+          const memoryEntry = {
+            obituaryId,
+            name: 'Flower Order',
+            relationship: 'Flower Order',
+            memoryText: `Sent ${flowerOrder || 'flowers'} as a tribute to ${deceasedName}`,
+            createdAt: new Date(),
+            published: false,
+            isFlowerOrder: true,
+            flowerName: flowerOrder || 'Flower Arrangement',
+            flowerImage: null,
+            orderTotal: '',
+            deceasedName,
+            paymentConfirmed: false,
+            customerEmail: customerEmail || '',
+          };
+          const docRef = await addDoc(collection(db, 'memories'), memoryEntry);
+          memoryId = docRef.id;
+          console.log('💐 Draft memory created:', memoryId);
+        }
       } catch (err) {
-        console.error('Error creating draft memory:', err);
+        console.error('Error creating/updating draft memory:', err);
       }
     }
 
