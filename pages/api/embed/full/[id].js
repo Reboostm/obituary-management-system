@@ -113,7 +113,7 @@ export default async function handler(req, res) {
 
     // Build memories HTML
     const memoriesHtml = memories.length === 0
-      ? '<p style="color:#6b7280;font-size:.85rem;text-align:center;padding:16px 0">No memories shared yet. Be the first.</p>'
+      ? '<p style="color:#8a7f6a;font-size:.85rem;text-align:center;padding:24px 0;font-style:italic;letter-spacing:.04em">No memories shared yet. Be the first to leave one above.</p>'
       : memories.map((m, idx) => {
           const mDate = m.createdAt?.toDate
             ? m.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -123,6 +123,7 @@ export default async function handler(req, res) {
           if (m.isFlowerOrder) {
             const senderName = m.name && m.name !== 'Flower Order' && m.name !== 'A caring friend' ? m.name : (m.customerName || 'A caring friend');
             const flowerName = m.flowerName || 'Flower Arrangement';
+            const flowerRel = m.relationship && m.relationship !== 'Flower Order' ? m.relationship : '';
             const flowerImgs = Array.isArray(m.flowerImages) && m.flowerImages.length
               ? m.flowerImages
               : (m.flowerImage ? [m.flowerImage] : []);
@@ -135,6 +136,7 @@ export default async function handler(req, res) {
                 + `<div class="rb-fp-flower-sender">`
                   + `<div class="rb-fp-flower-sender-label">A tribute from</div>`
                   + `<div class="rb-fp-memory-name">${esc(senderName)}</div>`
+                  + (flowerRel ? `<span class="rb-fp-flower-rel">${esc(flowerRel)}</span>` : '')
                 + `</div>`
                 + `<div style="display:flex;align-items:center;gap:8px">`
                   + `<span class="rb-fp-flower-badge">💐 Flowers</span>`
@@ -193,13 +195,30 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-service-card-virtual{background:#d4af7f;border:2px solid #f59e0b}
 .rb-fp-virtual-link{display:inline-block;background:#d97706;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:600;margin-top:8px;transition:all .2s;border:none;cursor:pointer}
 .rb-fp-virtual-link:hover{background:#b45309;transform:scale(1.05)}
-.rb-fp-mw{margin-top:-16px;background:linear-gradient(180deg,#1e1e2e 0%,#252533 100%);border-radius:0;padding:40px 32px;border:none;border-top:1px solid rgba(217,119,6,.15);box-shadow:none}
-.rb-fp-mw-title{color:#f59e0b;font-size:1.8rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.5)}
-.rb-fp-memory-card{background:linear-gradient(135deg,#13131f 0%,#1a1a26 100%);border:2px solid #d4af7f;border-radius:14px;padding:20px;margin-bottom:18px;transition:all .3s ease;box-shadow:0 2px 8px rgba(212,175,127,.1)}
-.rb-fp-memory-card:hover{border-color:#f3c071;box-shadow:0 8px 20px rgba(212,175,127,.25);transform:translateY(-2px)}
+.rb-fp-mw{margin-top:-16px;background:linear-gradient(180deg,#0a0a0f 0%,#12101a 100%);border-radius:0;padding:48px 32px 56px;border:none;border-top:1px solid rgba(212,175,127,.2);box-shadow:none}
+.rb-fp-mw-head{text-align:center;margin-bottom:28px}
+.rb-fp-mw-divider-top{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px}
+.rb-fp-mw-divider-top span{display:inline-block;width:60px;height:1px;background:linear-gradient(90deg,transparent,#c9a96e 50%,transparent)}
+.rb-fp-mw-divider-top .dot{width:6px;height:6px;border-radius:50%;background:#c9a96e;box-shadow:0 0 10px rgba(212,175,127,.5)}
+.rb-fp-mw-title{color:#d4af7f;font-size:1.7rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;margin:0;text-align:center;font-family:Georgia,serif;text-shadow:0 2px 14px rgba(212,175,127,.15)}
+.rb-fp-mw-sub{color:#8a7f6a;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;margin-top:10px;font-weight:500}
+
+/* Collapsible Leave-a-Memory toggle */
+.rb-fp-leave{max-width:560px;margin:0 auto 36px;background:linear-gradient(135deg,rgba(212,175,127,.08) 0%,rgba(201,169,110,.04) 100%);border:1px solid rgba(212,175,127,.28);border-radius:12px;overflow:hidden;transition:border-color .25s,box-shadow .25s}
+.rb-fp-leave.open{border-color:rgba(212,175,127,.5);box-shadow:0 8px 28px rgba(0,0,0,.35),0 0 0 1px rgba(212,175,127,.1)}
+.rb-fp-leave-toggle{width:100%;background:transparent;border:none;color:#e8dcc4;padding:18px 22px;font-size:.95rem;font-family:Georgia,serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;transition:color .2s}
+.rb-fp-leave-toggle:hover{color:#f3c071}
+.rb-fp-leave-toggle .plus{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#d4af7f,#b8935c);color:#1a1208;font-weight:900;font-size:1.1rem;transition:transform .3s ease;box-shadow:0 2px 8px rgba(212,175,127,.3)}
+.rb-fp-leave.open .rb-fp-leave-toggle .plus{transform:rotate(45deg)}
+.rb-fp-leave-panel{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.rb-fp-leave.open .rb-fp-leave-panel{max-height:2000px}
+.rb-fp-leave-inner{padding:4px 22px 22px;border-top:1px solid rgba(212,175,127,.18)}
+
+.rb-fp-memory-card{background:linear-gradient(135deg,#141018 0%,#1a141e 100%);border:1px solid rgba(212,175,127,.3);border-radius:14px;padding:22px;margin-bottom:18px;transition:all .3s ease;box-shadow:0 4px 16px rgba(0,0,0,.3),inset 0 1px 0 rgba(212,175,127,.05)}
+.rb-fp-memory-card:hover{border-color:rgba(243,192,113,.55);box-shadow:0 10px 28px rgba(212,175,127,.18),inset 0 1px 0 rgba(243,192,113,.1);transform:translateY(-2px)}
 .rb-fp-memory-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.rb-fp-memory-name{color:#f59e0b;font-size:1.6rem;font-weight:800;letter-spacing:.03em}
-.rb-fp-memory-rel{font-size:.75rem;color:#d1d5db;background:rgba(217,119,6,.15);padding:4px 10px;border-radius:999px;border:1px solid rgba(217,119,6,.3);font-weight:600}
+.rb-fp-memory-name{color:#f3c071;font-size:1.35rem;font-weight:500;letter-spacing:.02em;font-family:Georgia,serif}
+.rb-fp-memory-rel{font-size:.68rem;color:#e8dcc4;background:linear-gradient(135deg,rgba(212,175,127,.18) 0%,rgba(201,169,110,.1) 100%);padding:5px 12px;border-radius:999px;border:1px solid rgba(212,175,127,.35);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 .rb-fp-memory-text{color:#e5e7eb;font-size:.9rem;line-height:1.8;margin:12px 0}
 .rb-fp-memory-date{color:#9ca3af;font-size:.8rem;margin-top:12px;font-style:italic}
 .rb-fp-memory-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin:16px 0}
@@ -208,8 +227,9 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-memory-image img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .rb-fp-flower-card{background:linear-gradient(160deg,#1a1208 0%,#241810 50%,#1f1410 100%);border:1px solid rgba(212,175,127,.35);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(243,192,113,.08);padding:22px}
 .rb-fp-flower-card:hover{border-color:rgba(243,192,113,.6);box-shadow:0 8px 28px rgba(212,175,127,.2),inset 0 1px 0 rgba(243,192,113,.12);transform:translateY(-2px)}
-.rb-fp-flower-sender{display:flex;flex-direction:column;gap:2px}
+.rb-fp-flower-sender{display:flex;flex-direction:column;gap:3px}
 .rb-fp-flower-sender-label{color:#d4af7f;font-size:.68rem;text-transform:uppercase;letter-spacing:.18em;font-weight:600;opacity:.85}
+.rb-fp-flower-rel{display:inline-block;margin-top:4px;font-size:.62rem;color:#e8dcc4;background:linear-gradient(135deg,rgba(212,175,127,.18) 0%,rgba(201,169,110,.1) 100%);padding:3px 10px;border-radius:999px;border:1px solid rgba(212,175,127,.35);font-weight:600;letter-spacing:.14em;text-transform:uppercase;align-self:flex-start;font-family:'Helvetica Neue',Arial,sans-serif}
 .rb-fp-flower-card .rb-fp-memory-name{color:#f3c071;font-size:1.35rem;font-family:Georgia,serif;font-weight:500;letter-spacing:.02em}
 .rb-fp-flower-badge{font-size:.68rem;color:#fef3cd;background:linear-gradient(135deg,rgba(217,119,6,.3) 0%,rgba(184,147,92,.3) 100%);padding:5px 11px;border-radius:999px;border:1px solid rgba(243,192,113,.45);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .rb-fp-flower-gallery{display:grid;gap:10px;margin:16px 0 8px}
@@ -222,16 +242,20 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-flower-name{color:#e8dcc4;font-size:1rem;font-weight:500;margin:14px 0 14px;letter-spacing:.01em;line-height:1.4;font-family:Georgia,serif}
 .rb-fp-flower-tribute-label{color:#9a8f7a;font-size:.72rem;text-transform:uppercase;letter-spacing:.15em;font-weight:500;margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif}
 .rb-fp-flower-deceased{color:#f3c071;font-size:1.75rem;font-style:italic;font-weight:600;line-height:1.25;margin:0 0 6px;font-family:Georgia,'Times New Roman',serif}
-.rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
-.rb-fp-form-title{color:#fff;font-size:.9rem;margin-bottom:14px}
-.rb-fp-field{margin-bottom:12px}
-.rb-fp-label{display:block;color:#9ca3af;font-size:.8rem;margin-bottom:4px}
-.rb-fp-input,.rb-fp-select,.rb-fp-textarea{width:100%;background:#1e1e2e;border:1px solid #374151;color:#fff;border-radius:8px;padding:10px 12px;font-size:.875rem;box-sizing:border-box;font-family:inherit}
-.rb-fp-textarea{resize:vertical;min-height:100px}
-.rb-fp-input:focus,.rb-fp-select:focus,.rb-fp-textarea:focus{outline:none;border-color:#d97706}
-.rb-fp-submit{background:#d97706;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:.875rem;cursor:pointer;font-family:inherit;transition:background .2s}
-.rb-fp-submit:hover{background:#b45309}
-.rb-fp-submit:disabled{opacity:.6;cursor:default}
+.rb-fp-form{background:transparent;border:none;border-radius:0;padding:0;margin-top:14px}
+.rb-fp-form-title{color:#d4af7f;font-size:.72rem;margin-bottom:14px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;text-align:center}
+.rb-fp-field{margin-bottom:14px}
+.rb-fp-label{display:block;color:#9a8f7a;font-size:.72rem;margin-bottom:6px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif}
+.rb-fp-input,.rb-fp-select,.rb-fp-textarea{width:100%;background:rgba(20,16,24,.65);border:1px solid rgba(212,175,127,.25);color:#f3ede0;border-radius:8px;padding:11px 14px;font-size:.9rem;box-sizing:border-box;font-family:Georgia,serif;transition:border-color .2s,box-shadow .2s,background .2s}
+.rb-fp-select,select.rb-fp-input{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%226%22%20viewBox%3D%220%200%2010%206%22%3E%3Cpath%20fill%3D%22%23d4af7f%22%20d%3D%22M0%200l5%206%205-6z%22%2F%3E%3C%2Fsvg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.rb-fp-select option,select.rb-fp-input option{background:#14101a;color:#f3ede0}
+.rb-fp-textarea{resize:vertical;min-height:110px;line-height:1.55}
+.rb-fp-input::placeholder,.rb-fp-textarea::placeholder{color:#6b6254}
+.rb-fp-input:focus,.rb-fp-select:focus,.rb-fp-textarea:focus{outline:none;border-color:#d4af7f;box-shadow:0 0 0 3px rgba(212,175,127,.15);background:rgba(20,16,24,.9)}
+.rb-fp-submit{background:linear-gradient(135deg,#d4af7f 0%,#b8935c 100%);color:#1a1208;border:none;border-radius:8px;padding:13px 28px;font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;cursor:pointer;font-family:'Helvetica Neue',Arial,sans-serif;transition:transform .12s,box-shadow .2s,filter .2s;box-shadow:0 3px 12px rgba(212,175,127,.3);width:100%;margin-top:4px}
+.rb-fp-submit:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 6px 18px rgba(212,175,127,.45)}
+.rb-fp-submit:active{transform:translateY(0)}
+.rb-fp-submit:disabled{opacity:.6;cursor:default;transform:none;filter:none}
 .rb-fp-success{color:#34d399;font-size:.85rem;margin-top:8px}
 .rb-fp-error{color:#f87171;font-size:.85rem;margin-top:8px}
 .rb-fp-share-section{margin-top:32px;margin-bottom:0;margin-left:-64px;margin-right:-64px;background:#000;border:none;border-radius:0;padding:24px calc(32px + 64px)}
@@ -279,19 +303,34 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
     <div class="rb-fp-share-section"><div style="text-align:center;margin-bottom:12px"><div class="rb-fp-section-title">Share This Tribute</div></div><div class="rb-fp-share-buttons"><button class="rb-fp-share-btn" data-platform="facebook" title="Share on Facebook">Facebook</button><button class="rb-fp-share-btn" data-platform="twitter" title="Share on Twitter">Twitter</button><button class="rb-fp-share-btn" data-platform="email" title="Share via Email">Email</button><button class="rb-fp-share-btn" data-platform="copy" title="Copy Link">Copy Link</button></div></div>
   </div>
   <div class="rb-fp-mw">
-    <div class="rb-fp-mw-title">Memory Wall</div>
-    <div id="rb-memories">${memoriesHtml}</div>
-    <div class="rb-fp-form">
-      <div class="rb-fp-form-title">Share a Memory</div>
-      <div class="rb-fp-field"><label class="rb-fp-label">Your Name</label><input class="rb-fp-input" id="rb-mname" placeholder="Jane Smith"></div>
-      <div class="rb-fp-field"><label class="rb-fp-label">Relationship</label><select class="rb-fp-select" id="rb-mrel"><option>Family</option><option>Friend</option><option>Colleague</option><option>Other</option></select></div>
-      <div class="rb-fp-field"><label class="rb-fp-label">Your Memory</label><textarea class="rb-fp-textarea" id="rb-mtext" placeholder="Share a favorite memory..."></textarea></div>
-      <div class="rb-fp-field"><label class="rb-fp-label">Photos (Optional) - <span id="rb-photo-count">0/10 photos</span></label><input type="file" class="rb-fp-input" id="rb-mphoto" accept="image/*" style="padding:8px"></div>
-      <button type="button" id="rb-add-photo-btn" style="background:#d97706;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:.85rem;cursor:pointer;margin-bottom:12px;font-family:inherit">+ Add Another Photo</button>
-      <div id="rb-mphoto-preview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:12px"></div>
-      <button class="rb-fp-submit" id="rb-msubmit">Share Memory</button>
-      <div id="rb-mmsg"></div>
+    <div class="rb-fp-mw-head">
+      <div class="rb-fp-mw-divider-top"><span></span><div class="dot"></div><span></span></div>
+      <div class="rb-fp-mw-title">Memory Wall</div>
+      <div class="rb-fp-mw-sub">In Honor &amp; Remembrance</div>
     </div>
+
+    <div class="rb-fp-leave" id="rb-leave">
+      <button type="button" class="rb-fp-leave-toggle" id="rb-leave-toggle">
+        <span class="plus">+</span>
+        <span>Share a Memory</span>
+      </button>
+      <div class="rb-fp-leave-panel">
+        <div class="rb-fp-leave-inner">
+          <div class="rb-fp-form">
+            <div class="rb-fp-field"><label class="rb-fp-label">Your Name</label><input class="rb-fp-input" id="rb-mname" placeholder="Jane Smith"></div>
+            <div class="rb-fp-field"><label class="rb-fp-label">Relationship</label><select class="rb-fp-select rb-fp-input" id="rb-mrel"><option>Family</option><option>Friend</option><option>Neighbor</option><option>Co-worker</option><option>Classmate</option><option>Community member</option><option>Other</option></select></div>
+            <div class="rb-fp-field"><label class="rb-fp-label">Your Memory</label><textarea class="rb-fp-textarea" id="rb-mtext" placeholder="Share a favorite memory..."></textarea></div>
+            <div class="rb-fp-field"><label class="rb-fp-label">Photos (Optional) &middot; <span id="rb-photo-count">0/10 photos</span></label><input type="file" class="rb-fp-input" id="rb-mphoto" accept="image/*" style="padding:8px"></div>
+            <button type="button" id="rb-add-photo-btn" style="background:transparent;color:#d4af7f;border:1px solid rgba(212,175,127,.4);border-radius:6px;padding:8px 16px;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;cursor:pointer;margin-bottom:14px;font-family:'Helvetica Neue',Arial,sans-serif;transition:all .2s">+ Add Another Photo</button>
+            <div id="rb-mphoto-preview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:14px"></div>
+            <button class="rb-fp-submit" id="rb-msubmit">Share Memory</button>
+            <div id="rb-mmsg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="rb-memories">${memoriesHtml}</div>
   </div>
 </div>
 
@@ -320,6 +359,16 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
       dot.addEventListener('click', function() { carIdx = i; updateCarousel(); });
     });
     setInterval(function() { carIdx = (carIdx + 1) % totalSlides; updateCarousel(); }, 4000);
+  }
+
+  /* ---- Leave-a-Memory collapsible toggle ---- */
+  var leaveWrap = document.getElementById('rb-leave');
+  var leaveToggle = document.getElementById('rb-leave-toggle');
+  if (leaveWrap && leaveToggle) {
+    leaveToggle.addEventListener('click', function() {
+      leaveWrap.classList.toggle('open');
+      setTimeout(notifyHeight, 450);
+    });
   }
 
   /* ---- Memory Submission with Photos ---- */
@@ -363,7 +412,12 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
             document.getElementById('rb-mphoto-preview').innerHTML = '';
           }
           msgEl.innerHTML = '<div class="rb-fp-success">&#10003; Your memory has been shared. Thank you.</div>';
-          setTimeout(function() { msgEl.innerHTML = ''; }, 3000);
+          setTimeout(function() {
+            msgEl.innerHTML = '';
+            var lw = document.getElementById('rb-leave');
+            if (lw) lw.classList.remove('open');
+            setTimeout(notifyHeight, 450);
+          }, 2200);
           refreshMemories();
         })
         .catch(function(err) {
@@ -475,7 +529,7 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
         var el = document.getElementById('rb-memories');
         if (!el) return;
         if (!memories || !memories.length) {
-          el.innerHTML = '<p style="color:#6b7280;font-size:.85rem;text-align:center;padding:16px 0">No memories shared yet. Be the first.</p>';
+          el.innerHTML = '<p style="color:#8a7f6a;font-size:.85rem;text-align:center;padding:24px 0;font-style:italic;letter-spacing:.04em">No memories shared yet. Be the first to leave one above.</p>';
           notifyHeight();
           return;
         }
@@ -484,6 +538,7 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
           if (m.isFlowerOrder) {
             var senderName = (m.name && m.name !== 'Flower Order' && m.name !== 'A caring friend') ? m.name : (m.customerName || 'A caring friend');
             var flowerName = m.flowerName || 'Flower Arrangement';
+            var flowerRel = (m.relationship && m.relationship !== 'Flower Order') ? m.relationship : '';
             var imgs = (m.flowerImages && m.flowerImages.length) ? m.flowerImages : (m.flowerImage ? [m.flowerImage] : []);
             var galleryCls = imgs.length > 1 ? 'rb-fp-flower-gallery multi' : 'rb-fp-flower-gallery single';
             var imgHtml = imgs.length
@@ -491,7 +546,9 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
               : '';
             return '<div class="rb-fp-memory-card rb-fp-flower-card">'
               + '<div class="rb-fp-memory-header">'
-                + '<div class="rb-fp-flower-sender"><div class="rb-fp-flower-sender-label">A tribute from</div><div class="rb-fp-memory-name">' + escJs(senderName) + '</div></div>'
+                + '<div class="rb-fp-flower-sender"><div class="rb-fp-flower-sender-label">A tribute from</div><div class="rb-fp-memory-name">' + escJs(senderName) + '</div>'
+                  + (flowerRel ? '<span class="rb-fp-flower-rel">' + escJs(flowerRel) + '</span>' : '')
+                + '</div>'
                 + '<div style="display:flex;align-items:center;gap:8px"><span class="rb-fp-flower-badge">💐 Flowers</span>'
                 + '<button class="rb-fp-memory-share" data-sharer="' + escJs(senderName) + '" title="Share">Share</button></div>'
               + '</div>'
