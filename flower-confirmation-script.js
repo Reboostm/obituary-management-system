@@ -224,24 +224,25 @@
 
   /* ─── Button ─── */
   #sfc-btn{
-    margin-top:18px;
+    margin-top:22px;
     width:100%;
-    padding:15px 16px;
-    font-size:17px;
+    padding:15px 28px;
+    font-size:14px;
     font-weight:700;
-    letter-spacing:.04em;
-    color:#fff;
-    background:linear-gradient(135deg,var(--sfc-gold) 0%,var(--sfc-gold-dk) 100%);
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:#1a1208;
+    background:linear-gradient(135deg,#e8c492 0%,#c9a96e 50%,#b8935c 100%);
     border:none;
     border-radius:8px;
     cursor:pointer;
-    transition:transform .12s, box-shadow .12s, background .2s;
-    font-family:Georgia,serif;
-    box-shadow:0 2px 8px rgba(184,147,92,0.35);
+    transition:transform .12s, box-shadow .2s, filter .2s;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    box-shadow:0 3px 14px rgba(212,175,127,.4), inset 0 1px 0 rgba(255,255,255,.35);
   }
-  #sfc-btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 4px 12px rgba(184,147,92,0.45); }
+  #sfc-btn:hover:not(:disabled){ transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 6px 20px rgba(212,175,127,.55), inset 0 1px 0 rgba(255,255,255,.4); }
   #sfc-btn:active:not(:disabled){ transform:translateY(0); }
-  #sfc-btn:disabled{ opacity:.7; cursor:not-allowed; }
+  #sfc-btn:disabled{ opacity:.7; cursor:not-allowed; transform:none; filter:none; }
   #sfc-status{ margin-top:12px; font-size:13.5px; min-height:18px; text-align:center; line-height:1.5; }
   #sfc-status.ok{ color:#065f46; font-weight:700; }
   #sfc-status.err{ color:#b91c1c; font-weight:600; }
