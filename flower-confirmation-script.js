@@ -15,10 +15,10 @@
   This script:
     1. Reads the deceased / service info (URL params → parent → localStorage)
        — supports BOTH snake_case (deceased_name) and camelCase (deceasedName)
-    2. Scrapes the GHL cart for the flower name, size, qty, and image
-    3. Shows a polished confirmation card with all of that info
+    2. Scrapes the GHL cart for EVERY flower (name, size, qty, image)
+    3. Shows a polished confirmation card listing each item separately
     4. On "Confirm" → POSTs to /api/ghl/update-contact so the backend has:
-         customer email, deceased name, flower name, flower image, service
+         customer email, deceased name, flower names, flower images, service
        (the memory-wall entry + director/floral-shop emails depend on this)
   ============================================================================
 -->
@@ -28,108 +28,167 @@
     --sfc-gold:#d4af7f;
     --sfc-gold-dk:#b8935c;
     --sfc-gold-lt:#f3c071;
+    --sfc-cream:#fffdf8;
     --sfc-ink:#1f2937;
+    --sfc-ink-soft:#374151;
     --sfc-muted:#6b7280;
-    --sfc-line:#e5e7eb;
+    --sfc-line:#e7e1d4;
   }
   #sfc-wrap{
     display:none;
-    max-width:560px;
-    margin:0 auto 28px;
+    max-width:600px;
+    margin:0 auto 32px;
     font-family:Georgia,"Times New Roman",serif;
     color:var(--sfc-ink);
-    background:#fffdf8;
+    background:var(--sfc-cream);
     border:1px solid var(--sfc-line);
-    border-radius:12px;
+    border-radius:14px;
     overflow:hidden;
-    box-shadow:0 8px 24px rgba(0,0,0,0.06), 0 2px 6px rgba(212,175,127,0.12);
+    box-shadow:0 10px 30px rgba(0,0,0,0.07), 0 3px 8px rgba(212,175,127,0.14);
     box-sizing:border-box;
     animation:sfc-fade .45s ease-out;
   }
-  @keyframes sfc-fade{ from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+  @keyframes sfc-fade{ from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
+
+  /* ─── Header ─── */
   .sfc-head{
-    background:linear-gradient(135deg,#d4af7f 0%,#c9a96e 100%);
-    padding:14px 22px;
+    background:linear-gradient(135deg,#d4af7f 0%,#c9a96e 55%,#b8935c 100%);
+    padding:26px 24px 28px;
     color:#fff;
+    text-align:center;
   }
-  .sfc-head h3{
+  .sfc-head-title{
     margin:0;
-    font-size:17px;
-    font-weight:700;
-    letter-spacing:.02em;
-  }
-  .sfc-head p{
-    margin:2px 0 0;
     font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.22em;
+    color:#fff8e7;
     opacity:.95;
-    font-style:italic;
   }
-  .sfc-body{ padding:18px 22px 20px; }
-  .sfc-hero{
+  .sfc-head-name{
+    margin:10px 0 0;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:26px;
+    font-style:italic;
+    font-weight:500;
+    line-height:1.2;
+    color:#fff;
+    letter-spacing:.01em;
+    text-shadow:0 1px 2px rgba(0,0,0,0.08);
+  }
+  .sfc-head-hint{
+    margin:6px 0 0;
+    font-size:12.5px;
+    font-style:italic;
+    opacity:.85;
+    font-family:Georgia,serif;
+  }
+
+  /* ─── Body ─── */
+  .sfc-body{ padding:22px 24px 24px; }
+
+  .sfc-service{
+    background:#faf6ed;
+    border:1px solid #ece4d2;
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:18px;
+    font-size:14px;
+    color:var(--sfc-ink-soft);
+    line-height:1.55;
+  }
+  .sfc-service > div{ padding:2px 0; }
+  .sfc-service .lbl{
+    color:var(--sfc-muted);
+    font-weight:700;
+    margin-right:6px;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .sfc-service:empty{ display:none; }
+
+  /* ─── Arrangement list ─── */
+  .sfc-section-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    color:var(--sfc-muted);
+    font-weight:700;
+    margin:0 0 10px;
+  }
+  .sfc-items{
+    list-style:none;
+    margin:0 0 4px;
+    padding:0;
+    border:1px solid var(--sfc-line);
+    border-radius:10px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .sfc-item{
     display:flex;
     gap:14px;
-    align-items:flex-start;
-    padding-bottom:14px;
+    align-items:center;
+    padding:12px 14px;
     border-bottom:1px solid var(--sfc-line);
-    margin-bottom:14px;
   }
-  .sfc-hero-img{
-    flex:0 0 90px;
-    height:90px;
+  .sfc-item:last-child{ border-bottom:none; }
+  .sfc-item-img{
+    flex:0 0 64px;
+    width:64px;
+    height:64px;
     border-radius:8px;
     overflow:hidden;
     background:#faf6ef;
     border:1px solid var(--sfc-line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--sfc-gold-dk);
+    font-size:22px;
   }
-  .sfc-hero-img img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .sfc-hero-info{ flex:1; min-width:0; }
-  .sfc-hero-info .label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.1em;
-    color:var(--sfc-muted);
-    margin-bottom:3px;
-  }
-  .sfc-hero-info .flower{
-    font-size:17px;
+  .sfc-item-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .sfc-item-info{ flex:1; min-width:0; }
+  .sfc-item-name{
+    font-size:15.5px;
     font-weight:700;
     color:var(--sfc-ink);
-    line-height:1.25;
+    line-height:1.3;
     word-break:break-word;
   }
-  .sfc-hero-info .sub{
+  .sfc-item-meta{
+    margin-top:3px;
     font-size:13px;
     color:var(--sfc-muted);
-    margin-top:3px;
+    font-style:italic;
   }
-  .sfc-lines > div{
-    padding:4px 0;
-    font-size:14px;
-    line-height:1.5;
-    color:#374151;
-  }
-  .sfc-lines .lbl{
+  .sfc-items-note{
+    margin:8px 2px 0;
+    font-size:12px;
     color:var(--sfc-muted);
-    font-weight:600;
-    margin-right:6px;
+    font-style:italic;
+    text-align:right;
   }
+
+  /* ─── Email field ─── */
   .sfc-field{
-    margin-top:16px;
+    margin-top:20px;
   }
   .sfc-field label{
     display:block;
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:var(--sfc-muted);
-    margin-bottom:6px;
+    font-size:14px;
+    color:var(--sfc-ink-soft);
+    margin-bottom:8px;
     font-weight:600;
+    font-family:Georgia,serif;
   }
   #sfc-email{
     width:100%;
-    padding:11px 14px;
-    font-size:14px;
-    border:1px solid #d1d5db;
+    padding:12px 14px;
+    font-size:15px;
+    border:1px solid #d8cfbd;
     border-radius:8px;
     background:#fff;
     box-sizing:border-box;
@@ -142,10 +201,19 @@
     border-color:var(--sfc-gold);
     box-shadow:0 0 0 3px rgba(212,175,127,0.22);
   }
+  .sfc-field-help{
+    margin-top:6px;
+    font-size:12px;
+    color:var(--sfc-muted);
+    font-style:italic;
+    line-height:1.45;
+  }
+
+  /* ─── Button ─── */
   #sfc-btn{
-    margin-top:12px;
+    margin-top:16px;
     width:100%;
-    padding:13px 16px;
+    padding:14px 16px;
     font-size:15px;
     font-weight:700;
     letter-spacing:.02em;
@@ -156,46 +224,45 @@
     cursor:pointer;
     transition:transform .12s, box-shadow .12s, background .2s;
     font-family:inherit;
-    box-shadow:0 2px 6px rgba(184,147,92,0.3);
+    box-shadow:0 2px 8px rgba(184,147,92,0.35);
   }
-  #sfc-btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 4px 10px rgba(184,147,92,0.4); }
+  #sfc-btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 4px 12px rgba(184,147,92,0.45); }
   #sfc-btn:active:not(:disabled){ transform:translateY(0); }
   #sfc-btn:disabled{ opacity:.7; cursor:not-allowed; }
-  #sfc-status{ margin-top:10px; font-size:13px; min-height:18px; text-align:center; }
-  #sfc-status.ok{ color:#065f46; font-weight:600; }
+  #sfc-status{ margin-top:12px; font-size:13.5px; min-height:18px; text-align:center; line-height:1.45; }
+  #sfc-status.ok{ color:#065f46; font-weight:700; }
   #sfc-status.err{ color:#b91c1c; font-weight:600; }
   .sfc-help{
     font-size:12px;
     color:var(--sfc-muted);
     text-align:center;
-    margin-top:10px;
-    line-height:1.5;
+    margin-top:12px;
+    line-height:1.55;
     font-style:italic;
   }
 </style>
 
 <div id="sfc-wrap">
   <div class="sfc-head">
-    <h3>💐 Confirm your tribute</h3>
-    <p id="sfc-head-sub"></p>
+    <div class="sfc-head-title">Confirm Your Tribute</div>
+    <div class="sfc-head-name" id="sfc-head-name"></div>
+    <div class="sfc-head-hint">A loving gesture remembered forever</div>
   </div>
   <div class="sfc-body">
-    <div class="sfc-hero">
-      <div class="sfc-hero-img" id="sfc-hero-img" style="display:none"><img id="sfc-hero-img-el" alt=""/></div>
-      <div class="sfc-hero-info">
-        <div class="label">Arrangement</div>
-        <div class="flower" id="sfc-flower"></div>
-        <div class="sub" id="sfc-flower-sub"></div>
-      </div>
-    </div>
-    <div class="sfc-lines" id="sfc-details"></div>
+    <div class="sfc-service" id="sfc-service"></div>
+    <div class="sfc-section-label" id="sfc-section-label">Your Arrangement</div>
+    <ul class="sfc-items" id="sfc-items"></ul>
+    <div class="sfc-items-note" id="sfc-items-note" style="display:none">Full pricing shown in the cart below.</div>
+
     <div class="sfc-field">
-      <label for="sfc-email">Your email (so we can send order details & link the memory)</label>
+      <label for="sfc-email">Where should we send your order confirmation?</label>
       <input id="sfc-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+      <div class="sfc-field-help">We'll email your receipt here and use it to link your tribute to the memory wall.</div>
     </div>
-    <button id="sfc-btn" type="button">Confirm Flower Tribute</button>
+
+    <button id="sfc-btn" type="button">Confirm Tribute &amp; Continue to Checkout</button>
     <div id="sfc-status"></div>
-    <div class="sfc-help">Complete the order form below to finish your purchase. Your tribute will appear on the memory wall once payment is confirmed.</div>
+    <div class="sfc-help">Complete the order form below to finalize payment. Your tribute will appear on the memory wall once the order is confirmed.</div>
   </div>
 </div>
 
@@ -227,7 +294,6 @@
       });
     } catch(e) {}
 
-    // Parent window data (same-origin only)
     if (!d.deceasedName && window.parent && window.parent !== window) {
       try {
         var po = window.parent.obituaryData || window.parent.obituaryFlowerContext;
@@ -235,7 +301,6 @@
       } catch(e) {}
     }
 
-    // localStorage fallback (your existing script writes both keys)
     if (!d.deceasedName) {
       ['obituaryData','obituaryFlowerContext'].forEach(function(key){
         if (d.deceasedName) return;
@@ -251,8 +316,8 @@
   }
 
   /* ───────────────────────────────────────────────────────────────────────
-     Scrape the GHL cart — mirrors your existing captureFlowerOrder
-     selectors and also grabs the flower image. */
+     Scrape the GHL cart — mirrors existing site selectors and grabs
+     image + size + qty for EACH item. */
   function scrubName(s) {
     return String(s || '')
       .replace(/\$[\d,.]+/g, '')
@@ -266,6 +331,7 @@
 
   function captureCart() {
     var items = [];
+    var seen = {};
     var selectors = [
       '.cart-item',
       '[data-cart-item]',
@@ -281,6 +347,9 @@
         var nameEl = node.querySelector('[class*="name"], [class*="title"], h3, h4, .product-name, strong');
         var name = nameEl ? scrubName(nameEl.textContent) : '';
         if (!name) return;
+        if (seen[name]) return;
+        seen[name] = true;
+
         var imgEl = node.querySelector('img');
         var img   = imgEl && imgEl.src ? imgEl.src : '';
         var sizeEl = node.querySelector('[class*="size"], [class*="option"], .variant');
@@ -295,11 +364,37 @@
     return items;
   }
 
-  function formatItems(items) {
-    if (!items.length) return '';
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderItems(items) {
+    return items.map(function(it){
+      var imgHtml = it.image
+        ? '<img src="' + esc(it.image) + '" alt="' + esc(it.name) + '"/>'
+        : '<span>&#128144;</span>';
+      var metaParts = [];
+      if (it.size) metaParts.push(esc(it.size));
+      if (it.qty && it.qty !== '1') metaParts.push('Qty ' + esc(it.qty));
+      var meta = metaParts.length ? '<div class="sfc-item-meta">' + metaParts.join(' &middot; ') + '</div>' : '';
+      return (
+        '<li class="sfc-item">' +
+          '<div class="sfc-item-img">' + imgHtml + '</div>' +
+          '<div class="sfc-item-info">' +
+            '<div class="sfc-item-name">' + esc(it.name) + '</div>' +
+            meta +
+          '</div>' +
+        '</li>'
+      );
+    }).join('');
+  }
+
+  function summarizeForBackend(items) {
     return items.map(function(it){
       var base = it.size ? (it.name + ' — ' + it.size) : it.name;
-      return it.qty && it.qty !== '1' ? (base + ' × ' + it.qty) : base;
+      return (it.qty && it.qty !== '1') ? (base + ' × ' + it.qty) : base;
     }).join(', ');
   }
 
@@ -317,39 +412,39 @@
     }
 
     var cart = captureCart();
-    var flowerName  = formatItems(cart) || d.flowerOrder || '';
-    var flowerImage = cart.length && cart[0].image ? cart[0].image : '';
-
-    // If we don't have anything yet, keep waiting for cart to render
-    if (!flowerName) return;
+    if (!cart.length && !d.flowerOrder) return; // wait for cart
+    if (!cart.length && d.flowerOrder) {
+      cart = [{ name: d.flowerOrder, size:'', qty:'', image:'' }];
+    }
 
     initialized = true;
 
-    document.getElementById('sfc-head-sub').textContent = 'In memory of ' + d.deceasedName;
-    document.getElementById('sfc-flower').textContent = flowerName;
-    if (cart.length && cart[0].size) {
-      document.getElementById('sfc-flower-sub').textContent = cart[0].size + (cart[0].qty && cart[0].qty !== '1' ? ' • Qty ' + cart[0].qty : '');
-    }
+    document.getElementById('sfc-head-name').textContent = 'In memory of ' + d.deceasedName;
+    document.getElementById('sfc-section-label').textContent =
+      cart.length > 1 ? 'Your Arrangements (' + cart.length + ')' : 'Your Arrangement';
+    document.getElementById('sfc-items').innerHTML = renderItems(cart);
+    if (cart.length > 1) document.getElementById('sfc-items-note').style.display = '';
 
-    if (flowerImage) {
-      document.getElementById('sfc-hero-img-el').src = flowerImage;
-      document.getElementById('sfc-hero-img').style.display = '';
-    }
-
-    var details = [];
-    if (d.serviceDateTime || d.serviceDate) details.push('<div>📅 <span class="lbl">Service:</span> ' + (d.serviceDateTime || d.serviceDate) + '</div>');
-    if (d.serviceLocation)                   details.push('<div>📍 <span class="lbl">Location:</span> ' + d.serviceLocation + '</div>');
-    document.getElementById('sfc-details').innerHTML = details.join('');
+    var svc = [];
+    if (d.serviceDateTime || d.serviceDate) svc.push('<div>📅 <span class="lbl">Service</span> ' + esc(d.serviceDateTime || d.serviceDate) + '</div>');
+    if (d.serviceLocation)                   svc.push('<div>📍 <span class="lbl">Location</span> ' + esc(d.serviceLocation) + '</div>');
+    document.getElementById('sfc-service').innerHTML = svc.join('');
 
     wrap.style.display = 'block';
-    wire(d, flowerName, flowerImage);
+    wire(d, cart);
   }
 
-  function wire(d, flowerName, flowerImage) {
+  function wire(d, cart) {
     var btn    = document.getElementById('sfc-btn');
     var status = document.getElementById('sfc-status');
     var email  = document.getElementById('sfc-email');
     var done   = false;
+
+    var flowerName  = summarizeForBackend(cart);
+    var flowerImage = '';
+    for (var i = 0; i < cart.length; i++) {
+      if (cart[i].image) { flowerImage = cart[i].image; break; }
+    }
 
     btn.addEventListener('click', async function () {
       if (done) return;
@@ -388,11 +483,11 @@
         btn.textContent = '✓ Tribute Confirmed';
         btn.style.background = 'linear-gradient(135deg,#065f46 0%,#047857 100%)';
         btn.style.boxShadow  = '0 2px 6px rgba(6,95,70,0.3)';
-        status.textContent = 'Your tribute is saved. Complete checkout below to publish it.';
+        status.innerHTML = 'Your tribute is saved.<br/>Complete checkout below to publish it on the memory wall.';
         status.className   = 'ok';
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = 'Confirm Flower Tribute';
+        btn.textContent = 'Confirm Tribute & Continue to Checkout';
         status.textContent = 'Something went wrong: ' + (err.message || 'please try again');
         status.className   = 'err';
         console.error('[SFC]', err);
