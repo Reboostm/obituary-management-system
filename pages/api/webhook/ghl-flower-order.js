@@ -211,13 +211,18 @@ export default async function handler(req, res) {
 
     console.log('🎯 Order found:', deceasedName, '|', flowerName, '| Customer:', customerName, '| Images:', flowerImages.length);
 
-    // ── Get floral shop ─────────────────────────────────────────────────────
+    // ── Get floral shop + all services (viewing, graveside, funeral, etc.) ──
     let floralShop = null;
+    let allServices = [];
     if (obituaryId) {
       try {
         const obituarySnap = await getDoc(doc(db, 'obituaries', obituaryId));
         if (obituarySnap.exists()) {
           const obituaryData = obituarySnap.data();
+          if (Array.isArray(obituaryData.services)) {
+            allServices = obituaryData.services;
+            console.log('📅 Services found:', allServices.length);
+          }
           if (obituaryData.selectedFloralShopId) {
             const shopSnap = await getDoc(doc(db, 'floralShops', obituaryData.selectedFloralShopId));
             if (shopSnap.exists()) {
@@ -226,7 +231,7 @@ export default async function handler(req, res) {
             }
           }
         }
-      } catch (err) { console.error('Error fetching floral shop:', err); }
+      } catch (err) { console.error('Error fetching obituary:', err); }
     }
 
     // ── Load notification settings (director emails, from address, API key) ─
@@ -274,6 +279,7 @@ export default async function handler(req, res) {
           serviceDate,
           serviceTime: '',
           serviceLocation,
+          services: allServices,
           deliveryAddress: '',
           orderNotes: flowerName,
           orderTotal,
@@ -298,9 +304,12 @@ export default async function handler(req, res) {
         name: customerName,
       };
       // Preserve existing values if GHL sent blanks
-      if (customerEmail) updateFields.customerEmail = customerEmail;
-      if (productName)   updateFields.flowerName    = productName;
-      if (productImage)  updateFields.flowerImage   = productImage;
+      if (customerEmail)            updateFields.customerEmail = customerEmail;
+      if (productName)              updateFields.flowerName    = productName;
+      if (productImage)             updateFields.flowerImage   = productImage;
+      if (pendingOrder.relationship && pendingOrder.relationship !== 'Flower Order') {
+        updateFields.relationship = pendingOrder.relationship;
+      }
       await updateDoc(doc(db, 'memories', pendingOrder.id), updateFields);
       console.log('✅ Memory published:', pendingOrder.id);
     } catch (err) {

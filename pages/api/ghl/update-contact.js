@@ -33,6 +33,7 @@ export default async function handler(req, res) {
     const {
       customerName,
       customerEmail,
+      relationship,
       deceasedName,
       serviceDate,
       serviceDateTime,
@@ -179,6 +180,7 @@ export default async function handler(req, res) {
           const patch = { updatedAt: new Date() };
           if (customerName)     { patch.customerName = customerName; patch.name = customerName; }
           if (customerEmail)      patch.customerEmail = customerEmail;
+          if (relationship)       patch.relationship  = relationship;
           if (flowerOrder)        patch.flowerName    = flowerOrder;
           if (flowerImage)        patch.flowerImage   = flowerImage;
           if (imagesArr.length)   patch.flowerImages  = imagesArr;
@@ -191,7 +193,7 @@ export default async function handler(req, res) {
             obituaryId,
             name: customerName || 'A caring friend',
             customerName: customerName || '',
-            relationship: 'Flower Order',
+            relationship: relationship || 'Flower Order',
             memoryText: `Sent ${flowerOrder || 'flowers'} as a tribute to ${deceasedName}`,
             createdAt: new Date(),
             published: false,

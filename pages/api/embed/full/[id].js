@@ -143,7 +143,8 @@ export default async function handler(req, res) {
               + `</div>`
               + flowerImg
               + `<div class="rb-fp-flower-name">${esc(flowerName)}</div>`
-              + `<div class="rb-fp-flower-tribute">In loving memory of <em>${esc(m.deceasedName || o.fullName || '')}</em></div>`
+              + `<div class="rb-fp-flower-tribute-label">In loving memory of</div>`
+              + `<div class="rb-fp-flower-deceased">${esc(m.deceasedName || o.fullName || '')}</div>`
               + (mDate ? `<div class="rb-fp-memory-date">${esc(mDate)}</div>` : '')
             + `</div>`;
           }
@@ -218,9 +219,9 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-flower-gallery.single .rb-fp-flower-img{aspect-ratio:auto}
 .rb-fp-flower-img img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
 .rb-fp-flower-card:hover .rb-fp-flower-img img{transform:scale(1.03)}
-.rb-fp-flower-name{color:#f3c071;font-size:1.05rem;font-weight:600;margin:14px 0 6px;letter-spacing:.01em;line-height:1.4;font-family:Georgia,serif}
-.rb-fp-flower-tribute{color:#c5b8a4;font-size:.9rem;font-style:italic;line-height:1.5;margin-top:4px;font-family:Georgia,serif}
-.rb-fp-flower-tribute em{color:#f3c071;font-style:italic;font-weight:600}
+.rb-fp-flower-name{color:#e8dcc4;font-size:1rem;font-weight:500;margin:14px 0 14px;letter-spacing:.01em;line-height:1.4;font-family:Georgia,serif}
+.rb-fp-flower-tribute-label{color:#9a8f7a;font-size:.72rem;text-transform:uppercase;letter-spacing:.15em;font-weight:500;margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif}
+.rb-fp-flower-deceased{color:#f3c071;font-size:1.75rem;font-style:italic;font-weight:600;line-height:1.25;margin:0 0 6px;font-family:Georgia,'Times New Roman',serif}
 .rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
 .rb-fp-form-title{color:#fff;font-size:.9rem;margin-bottom:14px}
 .rb-fp-field{margin-bottom:12px}
@@ -496,7 +497,8 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
               + '</div>'
               + imgHtml
               + '<div class="rb-fp-flower-name">' + escJs(flowerName) + '</div>'
-              + '<div class="rb-fp-flower-tribute">In loving memory of <em>' + escJs(m.deceasedName || '') + '</em></div>'
+              + '<div class="rb-fp-flower-tribute-label">In loving memory of</div>'
+              + '<div class="rb-fp-flower-deceased">' + escJs(m.deceasedName || shareData.name || '') + '</div>'
               + (d ? '<div class="rb-fp-memory-date">' + d + '</div>' : '')
               + '</div>';
           }
