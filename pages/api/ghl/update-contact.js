@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       serviceDateTime,
       serviceLocation,
       flowerOrder,
+      flowerImage,
       obituaryUrl,
     } = req.body;
 
@@ -167,12 +168,15 @@ export default async function handler(req, res) {
         const existingSnap = await getDocs(existingQ);
 
         if (existingSnap.docs.length > 0) {
-          // Draft already exists — just update the email if we now have it
+          // Draft already exists — update email + latest flower info
           memoryId = existingSnap.docs[0].id;
-          if (customerEmail) {
-            await updateDoc(doc(db, 'memories', memoryId), { customerEmail });
-          }
-          console.log('📝 Existing draft memory updated:', memoryId);
+          const patch = { updatedAt: new Date() };
+          if (customerEmail) patch.customerEmail = customerEmail;
+          if (flowerOrder)   patch.flowerName    = flowerOrder;
+          if (flowerImage)   patch.flowerImage   = flowerImage;
+          if (flowerOrder)   patch.memoryText    = `Sent ${flowerOrder} as a tribute to ${deceasedName}`;
+          await updateDoc(doc(db, 'memories', memoryId), patch);
+          console.log('📝 Existing draft memory updated:', memoryId, Object.keys(patch).join(','));
         } else {
           // No draft yet — create one
           const memoryEntry = {
@@ -184,7 +188,7 @@ export default async function handler(req, res) {
             published: false,
             isFlowerOrder: true,
             flowerName: flowerOrder || 'Flower Arrangement',
-            flowerImage: null,
+            flowerImage: flowerImage || null,
             orderTotal: '',
             deceasedName,
             paymentConfirmed: false,
