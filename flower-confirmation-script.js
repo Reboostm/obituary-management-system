@@ -34,38 +34,76 @@
 
   /* ─── Header ─── */
   .sfc-head{
-    background:linear-gradient(135deg,#d4af7f 0%,#c9a96e 55%,#b8935c 100%);
-    padding:28px 24px 30px;
+    background:radial-gradient(ellipse at top,#1a1528 0%,#0f0b18 55%,#080510 100%);
+    padding:36px 28px 38px;
     color:#fff;
     text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .sfc-head::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(212,175,127,.55) 50%,transparent);
+  }
+  .sfc-head::after{
+    content:"";
+    position:absolute;
+    bottom:0;left:50%;transform:translateX(-50%);
+    width:70%;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(212,175,127,.35) 50%,transparent);
+  }
+  .sfc-head-deco{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:0 auto 16px;
+    max-width:260px;
+  }
+  .sfc-head-deco span.line{
+    flex:1;
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(212,175,127,.55));
+  }
+  .sfc-head-deco span.line.right{
+    background:linear-gradient(90deg,rgba(212,175,127,.55),transparent);
+  }
+  .sfc-head-deco span.diamond{
+    color:#d4af7f;
+    font-size:11px;
+    letter-spacing:.2em;
+    filter:drop-shadow(0 0 6px rgba(212,175,127,.4));
   }
   .sfc-head-title{
     margin:0;
-    font-size:19px;
-    font-weight:800;
+    font-size:12px;
+    font-weight:500;
     text-transform:uppercase;
-    letter-spacing:.2em;
-    color:#fff8e7;
+    letter-spacing:.32em;
+    color:#d4af7f;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    opacity:.9;
   }
   .sfc-head-in-memory{
-    margin:14px 0 4px;
-    font-size:14px;
-    font-style:italic;
-    letter-spacing:.05em;
-    color:#fff2d9;
-    opacity:.95;
-    font-family:Georgia,serif;
+    margin:16px 0 6px;
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:#9a8f7a;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-weight:500;
   }
   .sfc-head-name{
     margin:0;
     font-family:Georgia,"Times New Roman",serif;
-    font-size:30px;
-    font-style:italic;
+    font-size:32px;
     font-weight:500;
     line-height:1.15;
-    color:#fff;
+    color:#f5e9d4;
     letter-spacing:.015em;
-    text-shadow:0 1px 2px rgba(0,0,0,0.1);
+    text-shadow:0 2px 18px rgba(212,175,127,.18);
   }
 
   /* ─── Body ─── */
@@ -211,8 +249,9 @@
 
 <div id="sfc-wrap">
   <div class="sfc-head">
+    <div class="sfc-head-deco"><span class="line"></span><span class="diamond">◆</span><span class="line right"></span></div>
     <div class="sfc-head-title">Please Confirm Your Tribute</div>
-    <div class="sfc-head-in-memory">In Memory Of</div>
+    <div class="sfc-head-in-memory">In Loving Memory Of</div>
     <div class="sfc-head-name" id="sfc-head-name"></div>
   </div>
   <div class="sfc-body">

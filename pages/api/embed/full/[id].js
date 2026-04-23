@@ -168,7 +168,7 @@ export default async function handler(req, res) {
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,serif;background:transparent}
 .rb-fp{max-width:780px;margin:0 auto}
-.rb-fp-header{background:radial-gradient(ellipse at top,#1a1528 0%,#0f0b18 55%,#080510 100%);border-radius:16px 16px 0 0;padding:56px 32px 48px;text-align:center;border-bottom:1px solid rgba(212,175,127,.22);position:relative;overflow:hidden}
+.rb-fp-header{background:radial-gradient(ellipse at top,#1a1528 0%,#0f0b18 55%,#080510 100%);border-radius:16px 16px 0 0;padding:56px 32px 130px;text-align:center;border-bottom:1px solid rgba(212,175,127,.22);position:relative;overflow:hidden}
 .rb-fp-header::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,127,.45) 50%,transparent)}
 .rb-fp-header::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:70%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,127,.35) 50%,transparent)}
 .rb-fp-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 18px;max-width:260px}
@@ -182,7 +182,7 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-loc{color:#9a8f7a;font-size:.82rem;margin-top:12px;font-style:italic;letter-spacing:.06em;font-family:Georgia,serif}
 .rb-fp-loc::before{content:"◆ ";color:#8a7f6a;font-size:.55rem;vertical-align:middle;margin-right:4px}
 .rb-fp-body{background:#f9fafb;padding:0 32px 32px;border-radius:0 0 16px 16px;display:flow-root}
-.rb-fp-carousel{position:relative;margin:-80px auto 24px;border-radius:50%;overflow:hidden;width:160px;height:160px;border:3px solid transparent;background:linear-gradient(#f9fafb,#f9fafb) padding-box,linear-gradient(135deg,#d4af7f 0%,#b8935c 50%,#d4af7f 100%) border-box;box-shadow:0 12px 32px rgba(0,0,0,.35),0 0 0 6px #f9fafb}
+.rb-fp-carousel{position:relative;margin:-110px auto 28px;border-radius:50%;overflow:hidden;width:220px;height:220px;border:3px solid transparent;background:linear-gradient(#f9fafb,#f9fafb) padding-box,linear-gradient(135deg,#d4af7f 0%,#b8935c 50%,#d4af7f 100%) border-box;box-shadow:0 14px 38px rgba(0,0,0,.42),0 0 0 7px #f9fafb}
 .rb-fp-carousel-track{display:flex;transition:transform .4s ease;height:100%}
 .rb-fp-carousel-slide{min-width:100%;height:100%;background:#111827}
 .rb-fp-carousel-slide img{width:100%;height:100%;object-fit:cover}
@@ -217,8 +217,14 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-leave.open{border-color:rgba(212,175,127,.5);box-shadow:0 8px 28px rgba(0,0,0,.35),0 0 0 1px rgba(212,175,127,.1)}
 .rb-fp-leave-toggle{width:100%;background:transparent;border:none;color:#e8dcc4;padding:18px 22px;font-size:.95rem;font-family:Georgia,serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;transition:color .2s}
 .rb-fp-leave-toggle:hover{color:#f3c071}
-.rb-fp-leave-toggle .plus{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#d4af7f,#b8935c);color:#1a1208;font-weight:900;font-size:1.1rem;transition:transform .3s ease;box-shadow:0 2px 8px rgba(212,175,127,.3)}
-.rb-fp-leave.open .rb-fp-leave-toggle .plus{transform:rotate(45deg)}
+.rb-fp-leave-toggle .plus{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e8c492 0%,#c9a96e 50%,#b8935c 100%);color:#1a1208;font-weight:900;font-size:1.75rem;line-height:1;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 3px 14px rgba(212,175,127,.45),inset 0 1px 0 rgba(255,255,255,.35);animation:rb-plus-pulse 2.6s ease-in-out infinite}
+.rb-fp-leave.open .rb-fp-leave-toggle .plus{transform:rotate(45deg);animation:none}
+@keyframes rb-plus-pulse{
+  0%,100%{box-shadow:0 3px 14px rgba(212,175,127,.45),inset 0 1px 0 rgba(255,255,255,.35),0 0 0 0 rgba(212,175,127,.5)}
+  50%{box-shadow:0 3px 14px rgba(212,175,127,.55),inset 0 1px 0 rgba(255,255,255,.35),0 0 0 10px rgba(212,175,127,0)}
+}
+.rb-fp-leave-toggle:hover .plus{transform:scale(1.08);box-shadow:0 5px 18px rgba(212,175,127,.6),inset 0 1px 0 rgba(255,255,255,.4)}
+.rb-fp-leave.open .rb-fp-leave-toggle:hover .plus{transform:rotate(45deg) scale(1.08)}
 .rb-fp-leave-panel{max-height:0;overflow:hidden;transition:max-height .4s ease}
 .rb-fp-leave.open .rb-fp-leave-panel{max-height:2000px}
 .rb-fp-leave-inner{padding:4px 22px 22px;border-top:1px solid rgba(212,175,127,.18)}
@@ -282,7 +288,8 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-name{font-size:2rem}
 .rb-fp-mem-label{font-size:.66rem;letter-spacing:.28em}
 .rb-fp-body{padding:0 20px 20px}
-.rb-fp-carousel{margin-top:-64px;width:128px;height:128px}
+.rb-fp-header{padding:40px 20px 110px}
+.rb-fp-carousel{margin-top:-95px;width:180px;height:180px}
 .rb-fp-section-header{flex-wrap:wrap;justify-content:center;white-space:normal;margin:20px 0 16px}
 .rb-fp-section-line{display:none}
 .rb-fp-section-title{font-size:.88rem;margin-bottom:8px;width:100%;letter-spacing:.22em}
