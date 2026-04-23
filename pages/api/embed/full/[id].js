@@ -108,7 +108,7 @@ export default async function handler(req, res) {
           : (s.location ? `<a href="https://www.google.com/maps/search/${encodeURIComponent(s.location)}" target="_blank" rel="noopener noreferrer" class="rb-fp-service-loc" style="text-decoration:underline;cursor:pointer">📍 ${esc(s.location)}</a>` : '');
         return `<div class="rb-fp-service-card${isVirtualViewing ? ' rb-fp-service-card-virtual' : ''}"><div class="rb-fp-service-type">${esc(s.type)}</div><div class="rb-fp-service-datetime">${s.date ? esc(s.date) : ''}${s.time ? ' at ' + esc(s.time) : ''}</div>${locationOrLink}</div>`;
       }).join('');
-      servicesHtml = `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Memorial Services</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-services">${sCards}</div>`;
+      servicesHtml = `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Memorial Services</div><div class="rb-fp-section-line right"></div></div><div class="rb-fp-services">${sCards}</div>`;
     }
 
     // Build memories HTML
@@ -168,13 +168,21 @@ export default async function handler(req, res) {
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,serif;background:transparent}
 .rb-fp{max-width:780px;margin:0 auto}
-.rb-fp-header{background:#111827;border-radius:16px 16px 0 0;padding:40px 32px;text-align:center;border-bottom:3px solid #d97706}
-.rb-fp-deco{display:none}
-.rb-fp-name{color:#fff;font-size:2.2rem;margin:0 0 8px;letter-spacing:.04em}
-.rb-fp-dates{color:#f59e0b;font-size:1rem;letter-spacing:.1em}
-.rb-fp-loc{color:#9ca3af;font-size:.875rem;margin-top:8px;font-style:italic}
-.rb-fp-body{background:#f9fafb;padding:32px;border-radius:0 0 16px 16px}
-.rb-fp-carousel{position:relative;margin:0 auto 20px;border-radius:12px;overflow:hidden;width:180px;height:200px}
+.rb-fp-header{background:radial-gradient(ellipse at top,#1a1528 0%,#0f0b18 55%,#080510 100%);border-radius:16px 16px 0 0;padding:56px 32px 48px;text-align:center;border-bottom:1px solid rgba(212,175,127,.22);position:relative;overflow:hidden}
+.rb-fp-header::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,127,.45) 50%,transparent)}
+.rb-fp-header::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:70%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,127,.35) 50%,transparent)}
+.rb-fp-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 18px;max-width:260px}
+.rb-fp-deco-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,127,.55))}
+.rb-fp-deco-line.right{background:linear-gradient(90deg,rgba(212,175,127,.55),transparent)}
+.rb-fp-deco-diamond{color:#d4af7f;font-size:.75rem;letter-spacing:.2em;filter:drop-shadow(0 0 6px rgba(212,175,127,.4))}
+.rb-fp-mem-label{color:#d4af7f;font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;font-weight:500;margin-bottom:14px;font-family:'Helvetica Neue',Arial,sans-serif;opacity:.85}
+.rb-fp-name{color:#f5e9d4;font-size:2.6rem;margin:0 0 14px;letter-spacing:.015em;font-family:Georgia,'Times New Roman',serif;font-weight:500;line-height:1.1;text-shadow:0 2px 18px rgba(212,175,127,.18)}
+.rb-fp-dates{color:#d4af7f;font-size:.95rem;letter-spacing:.18em;font-family:Georgia,serif;font-style:italic;margin-top:4px}
+.rb-fp-dates .sep{display:inline-block;margin:0 10px;color:#8a7f6a;font-style:normal}
+.rb-fp-loc{color:#9a8f7a;font-size:.82rem;margin-top:12px;font-style:italic;letter-spacing:.06em;font-family:Georgia,serif}
+.rb-fp-loc::before{content:"◆ ";color:#8a7f6a;font-size:.55rem;vertical-align:middle;margin-right:4px}
+.rb-fp-body{background:#f9fafb;padding:0 32px 32px;border-radius:0 0 16px 16px;display:flow-root}
+.rb-fp-carousel{position:relative;margin:-80px auto 24px;border-radius:50%;overflow:hidden;width:160px;height:160px;border:3px solid transparent;background:linear-gradient(#f9fafb,#f9fafb) padding-box,linear-gradient(135deg,#d4af7f 0%,#b8935c 50%,#d4af7f 100%) border-box;box-shadow:0 12px 32px rgba(0,0,0,.35),0 0 0 6px #f9fafb}
 .rb-fp-carousel-track{display:flex;transition:transform .4s ease;height:100%}
 .rb-fp-carousel-slide{min-width:100%;height:100%;background:#111827}
 .rb-fp-carousel-slide img{width:100%;height:100%;object-fit:cover}
@@ -183,9 +191,10 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-carousel-dots{text-align:center;margin-top:8px}
 .rb-fp-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#d1d5db;margin:0 3px;cursor:pointer;transition:background .2s}
 .rb-fp-dot.active{background:#d97706}
-.rb-fp-section-header{display:flex;align-items:center;gap:12px;margin:24px 0 12px}
-.rb-fp-section-line{height:1px;flex:1;background:#e5e7eb}
-.rb-fp-section-title{color:#d4af7f;font-size:1.4rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;white-space:nowrap}
+.rb-fp-section-header{display:flex;align-items:center;gap:14px;margin:32px 0 16px}
+.rb-fp-section-line{height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(184,147,92,.35))}
+.rb-fp-section-line.right{background:linear-gradient(90deg,rgba(184,147,92,.35),transparent)}
+.rb-fp-section-title{color:#b8935c;font-size:1rem;font-weight:600;text-transform:uppercase;letter-spacing:.28em;white-space:nowrap;font-family:Georgia,serif}
 .rb-fp-text{color:#374151;font-size:1rem;line-height:1.75}
 .rb-fp-services{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:8px}
 .rb-fp-service-card{background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:14px}
@@ -269,12 +278,14 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-memory-share:hover{background:rgba(217,119,6,.2);border-color:#d97706;transform:scale(1.08)}
 .rb-fp-memory-share svg{width:16px;height:16px}
 @media (max-width:640px){
-.rb-fp-header{padding:24px 20px}
-.rb-fp-name{font-size:1.8rem}
-.rb-fp-body{padding:20px}
+.rb-fp-header{padding:40px 20px 36px}
+.rb-fp-name{font-size:2rem}
+.rb-fp-mem-label{font-size:.66rem;letter-spacing:.28em}
+.rb-fp-body{padding:0 20px 20px}
+.rb-fp-carousel{margin-top:-64px;width:128px;height:128px}
 .rb-fp-section-header{flex-wrap:wrap;justify-content:center;white-space:normal;margin:20px 0 16px}
 .rb-fp-section-line{display:none}
-.rb-fp-section-title{font-size:1.1rem;margin-bottom:8px;width:100%}
+.rb-fp-section-title{font-size:.88rem;margin-bottom:8px;width:100%;letter-spacing:.22em}
 .rb-fp-services{grid-template-columns:1fr}
 .rb-fp-share-section{margin:0;padding:24px 20px;background:#000}
 .rb-fp-share-buttons{justify-content:center}
@@ -289,16 +300,17 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
 </script>
 <div class="rb-fp">
   <div class="rb-fp-header">
-    <div class="rb-fp-deco"><div class="rb-fp-deco-line"></div><span style="color:#d4af7f;font-size:.9rem;letter-spacing:.2em">◆</span><div class="rb-fp-deco-line"></div></div>
+    <div class="rb-fp-deco"><div class="rb-fp-deco-line"></div><span class="rb-fp-deco-diamond">◆</span><div class="rb-fp-deco-line right"></div></div>
+    <div class="rb-fp-mem-label">In Loving Memory Of</div>
     <h1 class="rb-fp-name">${esc(o.fullName)}</h1>
-    ${dates ? `<div class="rb-fp-dates">${esc(dates)}</div>` : ''}
+    ${o.birthDate || o.deathDate ? `<div class="rb-fp-dates">${esc(o.birthDate || '')}${o.birthDate && o.deathDate ? '<span class="sep">—</span>' : ''}${esc(o.deathDate || '')}</div>` : ''}
     ${o.location ? `<div class="rb-fp-loc">${esc(o.location)}</div>` : ''}
   </div>
   <div class="rb-fp-body">
     ${carouselHtml}
-    ${o.bio ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Life &amp; Legacy</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.bio).replace(/\n/g, '<br>')}</div>` : ''}
-    ${o.survivors ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Survived By</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.survivors)}</div>` : ''}
-    ${o.predeceased ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Preceded in Death By</div><div class="rb-fp-section-line"></div></div><div class="rb-fp-text">${esc(o.predeceased)}</div>` : ''}
+    ${o.bio ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Life &amp; Legacy</div><div class="rb-fp-section-line right"></div></div><div class="rb-fp-text">${esc(o.bio).replace(/\n/g, '<br>')}</div>` : ''}
+    ${o.survivors ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Survived By</div><div class="rb-fp-section-line right"></div></div><div class="rb-fp-text">${esc(o.survivors)}</div>` : ''}
+    ${o.predeceased ? `<div class="rb-fp-section-header"><div class="rb-fp-section-line"></div><div class="rb-fp-section-title">Preceded in Death By</div><div class="rb-fp-section-line right"></div></div><div class="rb-fp-text">${esc(o.predeceased)}</div>` : ''}
     ${servicesHtml}
     <div class="rb-fp-share-section"><div style="text-align:center;margin-bottom:12px"><div class="rb-fp-section-title">Share This Tribute</div></div><div class="rb-fp-share-buttons"><button class="rb-fp-share-btn" data-platform="facebook" title="Share on Facebook">Facebook</button><button class="rb-fp-share-btn" data-platform="twitter" title="Share on Twitter">Twitter</button><button class="rb-fp-share-btn" data-platform="email" title="Share via Email">Email</button><button class="rb-fp-share-btn" data-platform="copy" title="Copy Link">Copy Link</button></div></div>
   </div>
