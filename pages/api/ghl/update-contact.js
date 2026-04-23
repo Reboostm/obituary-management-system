@@ -31,6 +31,7 @@ export default async function handler(req, res) {
 
   try {
     const {
+      customerName,
       customerEmail,
       deceasedName,
       serviceDate,
@@ -38,10 +39,15 @@ export default async function handler(req, res) {
       serviceLocation,
       flowerOrder,
       flowerImage,
+      flowerImages,
       obituaryUrl,
     } = req.body;
 
-    console.log('📤 GHL UPDATE - Deceased:', deceasedName, '| Customer Email:', customerEmail);
+    const imagesArr = Array.isArray(flowerImages) && flowerImages.length
+      ? flowerImages.filter(Boolean)
+      : (flowerImage ? [flowerImage] : []);
+
+    console.log('📤 GHL UPDATE - Deceased:', deceasedName, '| Customer:', customerName, '| Email:', customerEmail, '| Images:', imagesArr.length);
 
     if (!deceasedName) {
       return res.status(400).json({ error: 'Deceased name required' });
@@ -168,20 +174,23 @@ export default async function handler(req, res) {
         const existingSnap = await getDocs(existingQ);
 
         if (existingSnap.docs.length > 0) {
-          // Draft already exists — update email + latest flower info
+          // Draft already exists — update with latest info
           memoryId = existingSnap.docs[0].id;
           const patch = { updatedAt: new Date() };
-          if (customerEmail) patch.customerEmail = customerEmail;
-          if (flowerOrder)   patch.flowerName    = flowerOrder;
-          if (flowerImage)   patch.flowerImage   = flowerImage;
-          if (flowerOrder)   patch.memoryText    = `Sent ${flowerOrder} as a tribute to ${deceasedName}`;
+          if (customerName)     { patch.customerName = customerName; patch.name = customerName; }
+          if (customerEmail)      patch.customerEmail = customerEmail;
+          if (flowerOrder)        patch.flowerName    = flowerOrder;
+          if (flowerImage)        patch.flowerImage   = flowerImage;
+          if (imagesArr.length)   patch.flowerImages  = imagesArr;
+          if (flowerOrder)        patch.memoryText    = `Sent ${flowerOrder} as a tribute to ${deceasedName}`;
           await updateDoc(doc(db, 'memories', memoryId), patch);
           console.log('📝 Existing draft memory updated:', memoryId, Object.keys(patch).join(','));
         } else {
           // No draft yet — create one
           const memoryEntry = {
             obituaryId,
-            name: 'Flower Order',
+            name: customerName || 'A caring friend',
+            customerName: customerName || '',
             relationship: 'Flower Order',
             memoryText: `Sent ${flowerOrder || 'flowers'} as a tribute to ${deceasedName}`,
             createdAt: new Date(),
@@ -189,6 +198,7 @@ export default async function handler(req, res) {
             isFlowerOrder: true,
             flowerName: flowerOrder || 'Flower Arrangement',
             flowerImage: flowerImage || null,
+            flowerImages: imagesArr,
             orderTotal: '',
             deceasedName,
             paymentConfirmed: false,

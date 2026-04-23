@@ -130,20 +130,21 @@ export default async function handler(req, res) {
     console.log('💳 GHL Payment confirmed — looking up pending order from Firebase');
 
     // GHL sends camelCase (firstName/lastName) — handle both formats + custom data field
-    const customerName =
+    // These may be empty from GHL; we prefer draft values (captured from confirmation form)
+    const ghlCustomerName =
       orderData.customerName                                           // custom data field {{contact.name}}
       || orderData.contact?.name                                       // full name field
       || (orderData.contact?.firstName && orderData.contact?.lastName
           ? `${orderData.contact.firstName} ${orderData.contact.lastName}` : null)
       || (orderData.contact?.first_name && orderData.contact?.last_name
           ? `${orderData.contact.first_name} ${orderData.contact.last_name}` : null)
-      || 'A caring friend';
-    const customerEmail = orderData.customerEmail || orderData.contact?.email || '';
-    const orderTotal    = orderData.orderTotal || orderData.total || '';
-    const productName   = orderData.productName || orderData.product_name || '';
-    const productImage  = orderData.productImage || orderData.product_image || orderData.flowerImage || '';
+      || '';
+    const ghlCustomerEmail = orderData.customerEmail || orderData.contact?.email || '';
+    const orderTotal       = orderData.orderTotal || orderData.total || '';
+    const productName      = orderData.productName || orderData.product_name || '';
+    const productImage     = orderData.productImage || orderData.product_image || orderData.flowerImage || '';
 
-    console.log('👤 Customer:', customerName, '|', customerEmail);
+    console.log('👤 GHL Customer:', ghlCustomerName || '(empty)', '|', ghlCustomerEmail || '(empty)');
     console.log('🌸 Product from GHL:', productName || '(not sent)');
 
     // ── Find the pending draft in Firebase ──────────────────────────────────
@@ -164,8 +165,8 @@ export default async function handler(req, res) {
       pending.forEach(p => console.log('  -', p.deceasedName, '| email:', p.customerEmail, '| flower:', p.flowerName));
 
       // 1. Match by customer email (most reliable — entered at confirm time)
-      if (customerEmail) {
-        pendingOrder = pending.find(d => d.customerEmail === customerEmail) || null;
+      if (ghlCustomerEmail) {
+        pendingOrder = pending.find(d => d.customerEmail === ghlCustomerEmail) || null;
         if (pendingOrder) console.log('✅ Matched by customer email:', pendingOrder.deceasedName);
       }
 
@@ -197,7 +198,18 @@ export default async function handler(req, res) {
     const serviceLocation = pendingOrder.serviceLocation || '';
     const obituaryId      = pendingOrder.obituaryId      || null;
 
-    console.log('🎯 Order found:', deceasedName, '|', flowerName);
+    // Prefer confirmation-form values over GHL (GHL often sends blanks)
+    const customerName  = pendingOrder.customerName || ghlCustomerName || 'A caring friend';
+    const customerEmail = pendingOrder.customerEmail || ghlCustomerEmail || '';
+
+    // All flower images from the cart (fallback to single flowerImage for older drafts)
+    const flowerImages =
+      Array.isArray(pendingOrder.flowerImages) && pendingOrder.flowerImages.length
+        ? pendingOrder.flowerImages
+        : (pendingOrder.flowerImage ? [pendingOrder.flowerImage] : []);
+    const flowerImage = flowerImages[0] || pendingOrder.flowerImage || null;
+
+    console.log('🎯 Order found:', deceasedName, '|', flowerName, '| Customer:', customerName, '| Images:', flowerImages.length);
 
     // ── Get floral shop ─────────────────────────────────────────────────────
     let floralShop = null;
@@ -221,8 +233,6 @@ export default async function handler(req, res) {
     const settings = await loadNotificationSettings();
     console.log('⚙️ Settings loaded — directors:', settings.directorEmails.join(', '), '| from:', settings.fromEmail);
 
-    const flowerImage = pendingOrder.flowerImage || null;
-
     // ── Send director email(s) ──────────────────────────────────────────────
     for (const directorEmail of settings.directorEmails) {
       try {
@@ -233,6 +243,7 @@ export default async function handler(req, res) {
           customerEmail,
           flowerName,
           flowerImage,
+          flowerImages,
           serviceDate,
           serviceTime: '',
           serviceLocation,
@@ -259,6 +270,7 @@ export default async function handler(req, res) {
           customerPhone: orderData.contact?.phone || '',
           flowerName,
           flowerImage,
+          flowerImages,
           serviceDate,
           serviceTime: '',
           serviceLocation,
@@ -284,11 +296,11 @@ export default async function handler(req, res) {
         paymentConfirmed: true,
         orderTotal,
         name: customerName,
-        customerEmail,
       };
-      // Only overwrite flowerName/Image if GHL sent newer values
-      if (productName) updateFields.flowerName = productName;
-      if (productImage) updateFields.flowerImage = productImage;
+      // Preserve existing values if GHL sent blanks
+      if (customerEmail) updateFields.customerEmail = customerEmail;
+      if (productName)   updateFields.flowerName    = productName;
+      if (productImage)  updateFields.flowerImage   = productImage;
       await updateDoc(doc(db, 'memories', pendingOrder.id), updateFields);
       console.log('✅ Memory published:', pendingOrder.id);
     } catch (err) {

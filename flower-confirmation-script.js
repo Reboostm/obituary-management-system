@@ -184,7 +184,7 @@
     font-weight:600;
     font-family:Georgia,serif;
   }
-  #sfc-email{
+  #sfc-email, #sfc-name{
     width:100%;
     padding:12px 14px;
     font-size:15px;
@@ -196,7 +196,7 @@
     color:var(--sfc-ink);
     transition:border-color .15s, box-shadow .15s;
   }
-  #sfc-email:focus{
+  #sfc-email:focus, #sfc-name:focus{
     outline:none;
     border-color:var(--sfc-gold);
     box-shadow:0 0 0 3px rgba(212,175,127,0.22);
@@ -253,6 +253,11 @@
     <div class="sfc-section-label" id="sfc-section-label">Your Arrangement</div>
     <ul class="sfc-items" id="sfc-items"></ul>
     <div class="sfc-items-note" id="sfc-items-note" style="display:none">Full pricing shown in the cart below.</div>
+
+    <div class="sfc-field">
+      <label for="sfc-name">Your name (as you'd like it to appear on the memory wall)</label>
+      <input id="sfc-name" type="text" placeholder="Jane Smith" autocomplete="name"/>
+    </div>
 
     <div class="sfc-field">
       <label for="sfc-email">Where should we send your order confirmation?</label>
@@ -438,17 +443,26 @@
     var btn    = document.getElementById('sfc-btn');
     var status = document.getElementById('sfc-status');
     var email  = document.getElementById('sfc-email');
+    var nameEl = document.getElementById('sfc-name');
     var done   = false;
 
-    var flowerName  = summarizeForBackend(cart);
-    var flowerImage = '';
+    var flowerName   = summarizeForBackend(cart);
+    var flowerImages = [];
     for (var i = 0; i < cart.length; i++) {
-      if (cart[i].image) { flowerImage = cart[i].image; break; }
+      if (cart[i].image) flowerImages.push(cart[i].image);
     }
+    var flowerImage = flowerImages[0] || '';
 
     btn.addEventListener('click', async function () {
       if (done) return;
-      var addr = (email.value || '').trim();
+      var fullName = (nameEl.value || '').trim();
+      var addr     = (email.value || '').trim();
+      if (!fullName) {
+        status.textContent = 'Please enter your name to confirm.';
+        status.className   = 'err';
+        nameEl.focus();
+        return;
+      }
       if (!addr || addr.indexOf('@') < 0) {
         status.textContent = 'Please enter your email address to confirm.';
         status.className   = 'err';
@@ -466,13 +480,15 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            customerName:     fullName,
             customerEmail:    addr,
             deceasedName:     d.deceasedName,
             serviceDate:      d.serviceDate || '',
             serviceDateTime:  d.serviceDateTime || '',
             serviceLocation:  d.serviceLocation || '',
             flowerOrder:      flowerName,
-            flowerImage:      flowerImage || '',
+            flowerImage:      flowerImage,
+            flowerImages:     flowerImages,
             obituaryUrl:      d.obituaryUrl || ''
           })
         });

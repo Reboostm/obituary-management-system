@@ -119,24 +119,31 @@ export default async function handler(req, res) {
             ? m.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
             : '';
 
-          // Special card for flower orders: image + arrangement name + sender
+          // Special card for flower orders: image gallery + arrangement name + sender
           if (m.isFlowerOrder) {
-            const senderName = m.name && m.name !== 'Flower Order' ? m.name : 'A caring friend';
+            const senderName = m.name && m.name !== 'Flower Order' && m.name !== 'A caring friend' ? m.name : (m.customerName || 'A caring friend');
             const flowerName = m.flowerName || 'Flower Arrangement';
-            const flowerImg  = m.flowerImage
-              ? `<div class="rb-fp-flower-img"><img src="${esc(m.flowerImage)}" alt="${esc(flowerName)}"></div>`
+            const flowerImgs = Array.isArray(m.flowerImages) && m.flowerImages.length
+              ? m.flowerImages
+              : (m.flowerImage ? [m.flowerImage] : []);
+            const galleryCls = flowerImgs.length > 1 ? 'rb-fp-flower-gallery multi' : 'rb-fp-flower-gallery single';
+            const flowerImg  = flowerImgs.length
+              ? `<div class="${galleryCls}">${flowerImgs.map(src => `<div class="rb-fp-flower-img"><img src="${esc(src)}" alt="${esc(flowerName)}"></div>`).join('')}</div>`
               : '';
             return `<div class="rb-fp-memory-card rb-fp-flower-card">`
               + `<div class="rb-fp-memory-header">`
-                + `<span class="rb-fp-memory-name">${esc(senderName)}</span>`
+                + `<div class="rb-fp-flower-sender">`
+                  + `<div class="rb-fp-flower-sender-label">A tribute from</div>`
+                  + `<div class="rb-fp-memory-name">${esc(senderName)}</div>`
+                + `</div>`
                 + `<div style="display:flex;align-items:center;gap:8px">`
-                  + `<span class="rb-fp-flower-badge">💐 Flower Order</span>`
+                  + `<span class="rb-fp-flower-badge">💐 Flowers</span>`
                   + `<button class="rb-fp-memory-share" data-sharer="${esc(senderName)}" title="Share">Share</button>`
                 + `</div>`
               + `</div>`
               + flowerImg
               + `<div class="rb-fp-flower-name">${esc(flowerName)}</div>`
-              + `<div class="rb-fp-memory-text">Sent as a tribute to ${esc(m.deceasedName || o.fullName || '')}</div>`
+              + `<div class="rb-fp-flower-tribute">In loving memory of <em>${esc(m.deceasedName || o.fullName || '')}</em></div>`
               + (mDate ? `<div class="rb-fp-memory-date">${esc(mDate)}</div>` : '')
             + `</div>`;
           }
@@ -198,12 +205,22 @@ body{font-family:Georgia,serif;background:transparent}
 .rb-fp-memory-image{width:100%;aspect-ratio:1;border-radius:6px;border:1px solid #374151;overflow:hidden;cursor:pointer;transition:transform .2s}
 .rb-fp-memory-image:hover{transform:scale(1.05)}
 .rb-fp-memory-image img{width:100%;height:100%;object-fit:cover;cursor:pointer}
-.rb-fp-flower-card{background:linear-gradient(135deg,#1f1611 0%,#2a1d12 100%);border-color:#d4af7f}
-.rb-fp-flower-card:hover{border-color:#f3c071}
-.rb-fp-flower-badge{font-size:.7rem;color:#fef3cd;background:rgba(217,119,6,.25);padding:4px 10px;border-radius:999px;border:1px solid rgba(217,119,6,.5);font-weight:600;letter-spacing:.05em}
-.rb-fp-flower-img{width:100%;max-width:320px;margin:14px auto 6px;border-radius:10px;overflow:hidden;border:1px solid rgba(212,175,127,.4);background:#0d0d14}
-.rb-fp-flower-img img{display:block;width:100%;height:auto;max-height:320px;object-fit:cover}
-.rb-fp-flower-name{color:#f3c071;font-size:1rem;font-weight:700;margin:10px 0 4px;letter-spacing:.02em}
+.rb-fp-flower-card{background:linear-gradient(160deg,#1a1208 0%,#241810 50%,#1f1410 100%);border:1px solid rgba(212,175,127,.35);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(243,192,113,.08);padding:22px}
+.rb-fp-flower-card:hover{border-color:rgba(243,192,113,.6);box-shadow:0 8px 28px rgba(212,175,127,.2),inset 0 1px 0 rgba(243,192,113,.12);transform:translateY(-2px)}
+.rb-fp-flower-sender{display:flex;flex-direction:column;gap:2px}
+.rb-fp-flower-sender-label{color:#d4af7f;font-size:.68rem;text-transform:uppercase;letter-spacing:.18em;font-weight:600;opacity:.85}
+.rb-fp-flower-card .rb-fp-memory-name{color:#f3c071;font-size:1.35rem;font-family:Georgia,serif;font-weight:500;letter-spacing:.02em}
+.rb-fp-flower-badge{font-size:.68rem;color:#fef3cd;background:linear-gradient(135deg,rgba(217,119,6,.3) 0%,rgba(184,147,92,.3) 100%);padding:5px 11px;border-radius:999px;border:1px solid rgba(243,192,113,.45);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.rb-fp-flower-gallery{display:grid;gap:10px;margin:16px 0 8px}
+.rb-fp-flower-gallery.single{grid-template-columns:1fr;max-width:340px;margin-left:auto;margin-right:auto}
+.rb-fp-flower-gallery.multi{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.rb-fp-flower-img{border-radius:12px;overflow:hidden;border:1px solid rgba(212,175,127,.35);background:#0d0a06;box-shadow:0 2px 8px rgba(0,0,0,.3);aspect-ratio:1;position:relative}
+.rb-fp-flower-gallery.single .rb-fp-flower-img{aspect-ratio:auto}
+.rb-fp-flower-img img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.rb-fp-flower-card:hover .rb-fp-flower-img img{transform:scale(1.03)}
+.rb-fp-flower-name{color:#f3c071;font-size:1.05rem;font-weight:600;margin:14px 0 6px;letter-spacing:.01em;line-height:1.4;font-family:Georgia,serif}
+.rb-fp-flower-tribute{color:#c5b8a4;font-size:.9rem;font-style:italic;line-height:1.5;margin-top:4px;font-family:Georgia,serif}
+.rb-fp-flower-tribute em{color:#f3c071;font-style:italic;font-weight:600}
 .rb-fp-form{background:#13131f;border:1px solid #374151;border-radius:10px;padding:20px;margin-top:16px}
 .rb-fp-form-title{color:#fff;font-size:.9rem;margin-bottom:14px}
 .rb-fp-field{margin-bottom:12px}
@@ -464,16 +481,22 @@ console.log('OBITUARY DATA EMBEDDED:', window.__obituaryData);
         el.innerHTML = memories.map(function(m) {
           var d = m.createdAt ? new Date(m.createdAt.seconds ? m.createdAt.seconds * 1000 : m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
           if (m.isFlowerOrder) {
-            var senderName = (m.name && m.name !== 'Flower Order') ? m.name : 'A caring friend';
+            var senderName = (m.name && m.name !== 'Flower Order' && m.name !== 'A caring friend') ? m.name : (m.customerName || 'A caring friend');
             var flowerName = m.flowerName || 'Flower Arrangement';
-            var imgHtml = m.flowerImage ? '<div class="rb-fp-flower-img"><img src="' + escJs(m.flowerImage) + '" alt="' + escJs(flowerName) + '"></div>' : '';
+            var imgs = (m.flowerImages && m.flowerImages.length) ? m.flowerImages : (m.flowerImage ? [m.flowerImage] : []);
+            var galleryCls = imgs.length > 1 ? 'rb-fp-flower-gallery multi' : 'rb-fp-flower-gallery single';
+            var imgHtml = imgs.length
+              ? '<div class="' + galleryCls + '">' + imgs.map(function(src){ return '<div class="rb-fp-flower-img"><img src="' + escJs(src) + '" alt="' + escJs(flowerName) + '"></div>'; }).join('') + '</div>'
+              : '';
             return '<div class="rb-fp-memory-card rb-fp-flower-card">'
-              + '<div class="rb-fp-memory-header"><span class="rb-fp-memory-name">' + escJs(senderName) + '</span>'
-              + '<div style="display:flex;align-items:center;gap:8px"><span class="rb-fp-flower-badge">💐 Flower Order</span>'
-              + '<button class="rb-fp-memory-share" data-sharer="' + escJs(senderName) + '" title="Share">Share</button></div></div>'
+              + '<div class="rb-fp-memory-header">'
+                + '<div class="rb-fp-flower-sender"><div class="rb-fp-flower-sender-label">A tribute from</div><div class="rb-fp-memory-name">' + escJs(senderName) + '</div></div>'
+                + '<div style="display:flex;align-items:center;gap:8px"><span class="rb-fp-flower-badge">💐 Flowers</span>'
+                + '<button class="rb-fp-memory-share" data-sharer="' + escJs(senderName) + '" title="Share">Share</button></div>'
+              + '</div>'
               + imgHtml
               + '<div class="rb-fp-flower-name">' + escJs(flowerName) + '</div>'
-              + '<div class="rb-fp-memory-text">Sent as a tribute to ' + escJs(m.deceasedName || '') + '</div>'
+              + '<div class="rb-fp-flower-tribute">In loving memory of <em>' + escJs(m.deceasedName || '') + '</em></div>'
               + (d ? '<div class="rb-fp-memory-date">' + d + '</div>' : '')
               + '</div>';
           }
